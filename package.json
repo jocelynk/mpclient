@@ -38,7 +38,4 @@
   "cordovaPlatforms": [
     "android"
   ]
-/*  "plugins": [
-    "cordova-plugin-sim"
-  ]*/
 }
