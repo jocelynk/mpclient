@@ -1,6 +1,6 @@
-angular.module('starter.controllers', [ 'ngCordova'])
+angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starter.services'])
 
-  .controller('AppCtrl', function ($scope, $ionicModal, $timeout) {
+  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, $ionicPlatform) {
 
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.
@@ -8,6 +8,17 @@ angular.module('starter.controllers', [ 'ngCordova'])
     // listen for the $ionicView.enter event:
     //$scope.$on('$ionicView.enter', function(e) {
     //});
+
+   /* $ionicPlatform.ready(function () {
+      window.plugins.sim.getSimInfo(function (simInfo) {
+        console.log(simInfo);
+
+      }, function (error) {
+        console.log(error);
+
+      });
+    });*/
+
 
     // Form data for the login modal
     $scope.loginData = {};
@@ -40,6 +51,13 @@ angular.module('starter.controllers', [ 'ngCordova'])
       }, 1000);
     };
   })
+  .controller('LoginCtrl',['$scope', 'UserFactory', 'AuthService', function($scope, UserFactory, AuthService) {
+    AuthService.login().then(function(credentials) {
+      UserFactory.name = credentials.name;
+      UserFactory.phonenumber = credentials.phonenumber;
+      UserFactory.isAuthenticated = credentials.isAuthenticated;
+    });
+  }])
   .controller('MapCtrl', ['$scope', '$cordovaGeolocation', '$ionicPlatform', function ($scope, $cordovaGeolocation, $ionicPlatform) {
     var iconBase = './img/';
     $scope.icons = {
@@ -68,22 +86,22 @@ angular.module('starter.controllers', [ 'ngCordova'])
     $scope.refreshTimeout = null;
     $scope.refreshLocationTimeout = null;
 
-    $scope.initLocationSharing = function(location_callback) {
+    $scope.initLocationSharing = function (location_callback) {
       var randomGuid = guid();
       $scope.userInfo = {
         id: randomGuid, // Something like.. 5dccc6c8-717d-49928b84
         name: randomGuid,
-        randomIcon: Math.ceil(Math.random()*5)
+        randomIcon: Math.ceil(Math.random() * 5)
       };
 
       // ================================
       // Setup Socket IO
       // ================================
-      $scope.socket = io.connect('http://localhost:8888');
+      $scope.socket = io.connect('localhost:8888');
 
       $scope.socket.on('connect', function () {
         $scope.socket.on('get_location', function (location) {
-          console.log("emitting location");
+          //console.log("emitting location");
           //#if (!(location.id in $scope.users)) {
           //console.log("userLocationUpdate")
           location_callback(location);
@@ -99,23 +117,23 @@ angular.module('starter.controllers', [ 'ngCordova'])
       }
 
       $scope.geo_success = function (position, coordinates) {
-        console.log("geosuccess");
+        //console.log("geosuccess");
         var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-        if(coordinates) {
-          $scope.userInfo.latitude = coordinates.latitude + (plusOrMinus * (Math.random() *.01));
-          $scope.userInfo.longitude = coordinates.longitude + (plusOrMinus * (Math.random() *.01));
+        if (coordinates) {
+          $scope.userInfo.latitude = coordinates.latitude + (plusOrMinus * (Math.random() * .01));
+          $scope.userInfo.longitude = coordinates.longitude + (plusOrMinus * (Math.random() * .01));
         } else {
-          $scope.userInfo.latitude = position.coords.latitude + (plusOrMinus * (Math.random() *.01));
-          $scope.userInfo.longitude = position.coords.longitude + (plusOrMinus * (Math.random() *.01));
+          $scope.userInfo.latitude = position.coords.latitude + (plusOrMinus * (Math.random() * .01));
+          $scope.userInfo.longitude = position.coords.longitude + (plusOrMinus * (Math.random() * .01));
         }
         location_callback($scope.userInfo);
         $scope.sendLocation();
       };
 
       $scope.geo_success_cordova = function (position) {
-        console.log("geosuccess");
+        //console.log("geosuccess");
         var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-        if(position) {
+        if (position) {
           $scope.userInfo.latitude = position.coords.latitude + (plusOrMinus * (Math.random() * .01));
           $scope.userInfo.longitude = position.coords.longitude + (plusOrMinus * (Math.random() * .01));
         }
@@ -138,14 +156,14 @@ angular.module('starter.controllers', [ 'ngCordova'])
       $cordovaGeolocation.getCurrentPosition(posOptions).then($scope.geo_success_cordova, $scope.geo_error);
 
       var watchOptions = {
-        timeout : 3000,
+        timeout: 3000,
         enableHighAccuracy: false // may cause errors if true
       };
 
       var watch = $cordovaGeolocation.watchPosition(watchOptions);
       watch.then(
         null,
-        function(err) {
+        function (err) {
           // error
         },
         $scope.geo_success_cordova);
@@ -154,13 +172,13 @@ angular.module('starter.controllers', [ 'ngCordova'])
 
       // Refresh the markers every 2 seconds
       clearTimeout($scope.refreshLocationTimeout)
-      $scope.refreshLocationTimeout = setTimeout(function() {
-        coordinates = {latitude: $scope.userInfo.latitude, longitude:  $scope.userInfo.longitude}
+      $scope.refreshLocationTimeout = setTimeout(function () {
+        coordinates = {latitude: $scope.userInfo.latitude, longitude: $scope.userInfo.longitude}
         $scope.geo_success(null, coordinates);
       }, 1000 * 2);
 
-      setInterval(function() {
-        coordinates = {latitude: $scope.userInfo.latitude, longitude:  $scope.userInfo.longitude}
+      setInterval(function () {
+        coordinates = {latitude: $scope.userInfo.latitude, longitude: $scope.userInfo.longitude}
         $scope.geo_success(null, coordinates);
       }, 2000);
 
@@ -169,24 +187,24 @@ angular.module('starter.controllers', [ 'ngCordova'])
     };
 
     $scope.userLocationUpdate = function (userInfo) {
-      console.log("updating location")
+      //console.log("updating location")
       if (!$scope.users[userInfo.id]) $scope.users[userInfo.id] = {id: userInfo.id};
-      console.log(userInfo);
+      //console.log(userInfo);
       $scope.users[userInfo.id].name = userInfo.name;
       $scope.users[userInfo.id].latitude = userInfo.latitude;
       $scope.users[userInfo.id].longitude = userInfo.longitude;
       $scope.users[userInfo.id].timestamp = new Date().getTime();
       $scope.users[userInfo.id].randomIcon = userInfo.randomIcon;
-      console.log(userInfo.name);
+      /*console.log(userInfo.name);
       console.log(userInfo.latitude);
       console.log(userInfo.longitude);
-      console.log(userInfo.timestamp);
+      console.log(userInfo.timestamp);*/
       $scope.refreshMarkers();
     };
 
     $scope.refreshMarkers = function () {
       if (!$scope.map) return;
-      console.log("refreshing markers");
+      //console.log("refreshing markers");
       if (!$scope.currentUserInfo.movedMapCenter && $scope.currentUserInfo.timestamp) {
         /* $('#user-name').val(currentUserInfo.name);
          $('#user-name').bind('keyup', function() {
@@ -212,9 +230,9 @@ angular.module('starter.controllers', [ 'ngCordova'])
           }
         } else {
           // Create a marker for the new user
-          console.log("getting icon");
+          /*console.log("getting icon");
           console.log(userInfo);
-          console.log($scope.icons[userInfo.randomIcon]);
+          console.log($scope.icons[userInfo.randomIcon]);*/
           var marker = new google.maps.Marker({map: $scope.map, icon: $scope.icons[userInfo.randomIcon]['icon']});
           google.maps.event.addListener(marker, 'click', function () {
             $scope.infowindow.setContent(marker.getTitle())
@@ -223,7 +241,7 @@ angular.module('starter.controllers', [ 'ngCordova'])
           userInfo.marker = marker;
         }
         //Move the markers
-        console.log("moving the marker");
+        //console.log("moving the marker");
         userInfo.marker.setTitle(userInfo.name);
         userInfo.marker.setPosition(
           new google.maps.LatLng(userInfo.latitude, userInfo.longitude));
@@ -236,7 +254,7 @@ angular.module('starter.controllers', [ 'ngCordova'])
     };
 
     $scope.mapInitialize = function () {
-      console.log("initilizing map");
+      //console.log("initilizing map");
       $scope.map = new google.maps.Map(angular.element(document.querySelector('#map'))[0], {
         zoom: 8,
         center: new google.maps.LatLng(40, -74),
@@ -249,7 +267,7 @@ angular.module('starter.controllers', [ 'ngCordova'])
       $scope.refreshMarkers();
     };
 
-    $ionicPlatform.ready(function() {
+    $ionicPlatform.ready(function () {
       $scope.currentUserInfo = $scope.initLocationSharing($scope.userLocationUpdate);
 
       $scope.mapInitialize();
