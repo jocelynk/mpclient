@@ -74,6 +74,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.factories'])
         controller: 'MapCtrl'
       }
     }
+  })
+  .state('app.createMeetingLocation', {
+    url: '/createMeetingLocation',
+    views: {
+      'menuContent': {
+        template: 'templates/maps.html',
+        controller: 'MeetingCtrl',
+        animation: 'slide'
+      }
+    }
   });
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/login');

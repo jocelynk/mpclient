@@ -1,20 +1,17 @@
 angular.module('starter.factories')
 
-  .factory('LocationService', ['$timeout', '$cordovaGeolocation', 'UserFactory', 'MapService', function($timeout, $cordovaGeolocation, UserFactory, MapService) {
+  .factory('LocationService', ['$timeout', '$q', '$cordovaGeolocation', 'UserFactory', 'MapService', function($timeout, $q, $cordovaGeolocation, UserFactory, MapService) {
     var LocationService = {};
 
-    //LocationService.sendLocationTimeout = null;
-    var socket = io.connect('http://localhost:8888');
+    var socket = io.connect('http://192.168.1.4:8888');
 
-
-    LocationService.connectSockets = function() {
-      socket.on('connect', function () {
-        socket.on('get_location', function (userInfo) {
-          LocationService.userLocationUpdate(userInfo);
-        })
+    LocationService.getLocation = function() {
+      socket.on('get_location', function (userInfo) {
+        LocationService.userLocationUpdate(userInfo);
       });
-
     };
+
+
 
 
     LocationService.sendLocation = function () {
@@ -73,14 +70,14 @@ angular.module('starter.factories')
 
         UserFactory.currentUser.coordinates.latitude = position.coords.latitude + (plusOrMinus * (Math.random() * .0001));
         UserFactory.currentUser.coordinates.longitude = position.coords.longitude + (plusOrMinus * (Math.random() * .0001));
-        if(!MapService.map) {
+        /*if(!MapService.map) {
           MapService.map = MapService.initializeMap(UserFactory.currentUser.coordinates.latitude, UserFactory.currentUser.coordinates.longitude );
           MapService.infoWindow = MapService.initializeInfoWindow();
-        }
+        }*/
       }
-      console.log(UserFactory.currentUser.coordinates);
       LocationService.userLocationUpdate(UserFactory.currentUser);
       LocationService.sendLocation();
+
     };
 
     LocationService.geo_error = function () {

@@ -1,4 +1,4 @@
-angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starter.services'])
+angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories', 'starter.services'])
 
   .controller('AppCtrl', function ($scope, $ionicModal, $timeout, $ionicPlatform) {
 
@@ -41,21 +41,30 @@ angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starte
       }, 1000);
     };
   })
-  .controller('LoginCtrl',['$scope', 'UserFactory', 'AuthService', function($scope, UserFactory, AuthService) {
+  .controller('LoginCtrl',['$scope', 'UserFactory', 'AuthService', 'LocationService', function($scope, UserFactory, AuthService, LocationService) {
     AuthService.login().then(function(credentials) {
       if(angular.isDefined(credentials) && credentials != null) {
         UserFactory.currentUser.id = credentials.id;
         UserFactory.currentUser.name = credentials.name;
         UserFactory.currentUser.phoneNumber = credentials.phoneNumber;
         UserFactory.currentUser.isAuthenticated = credentials.isAuthenticated;
+
+        if(window.cordova) {
+          LocationService.getCordovaCurrentLocation();
+        } else {
+          LocationService.getWebCurrentLocation();
+        }
+
+        LocationService.getLocation();
       } else {
         //handle not being able to login
       }
 
     });
   }])
-  .controller('MapCtrl', ['$scope', '$cordovaGeolocation', '$ionicPlatform', 'DeviceInformationFactory', 'UserFactory', 'MapService', 'LocationService', function ($scope, $cordovaGeolocation, $ionicPlatform, DeviceInformationFactory, UserFactory, MapService, LocationService) {
+  .controller('MapCtrl', ['$scope', '$state', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'DeviceInformationFactory', 'UserFactory', 'MapService', 'LocationService', function ($scope, $state, $cordovaGeolocation, $ionicPlatform, $ionicModal, DeviceInformationFactory, UserFactory, MapService, LocationService) {
 
+    $scope.infoWindow = null;
     $scope.refreshTimeout = null;
     $scope.refreshLocationTimeout = null;
 
@@ -70,13 +79,15 @@ angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starte
         });
       } else {
 
-          if(window.cordova) {
-            LocationService.getCordovaCurrentLocation();
-          } else {
-            LocationService.getWebCurrentLocation();
-          }
+        $scope.$on('mapInitialized', function(event, map) {
+          MapService.map = map;
+          MapService.infoWindow = MapService.initializeInfoWindow();
+          google.maps.event.trigger(MapService.map, "resize");
+          var myLatLng = new google.maps.LatLng(UserFactory.currentUser.coordinates.latitude, UserFactory.currentUser.coordinates.longitude);
+          map.setCenter(myLatLng);
+          MapService.initializeEvents();
 
-          LocationService.connectSockets();
+        });
 
           // Refresh the markers every 2 seconds
           clearTimeout($scope.refreshLocationTimeout)
@@ -91,11 +102,54 @@ angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starte
             position.coords = {latitude:  UserFactory.currentUser.coordinates.latitude, longitude:  UserFactory.currentUser.coordinates.longitude};
             LocationService.geo_success(position);
           }, 2000);
-        //possibly use ionicView.enter
-        /*$scope.$on('$ionicView.enter', function(){
-        });*/
       }
     });
+
+    $scope.placeMarker = function(e) {
+      console.log(e);
+      if(MapService.longPress) {
+        var marker = new google.maps.Marker({position: e.latLng, map: MapService.map, draggable: true});
+        MapService.map.panTo(e.latLng);
+
+        $scope.openMeetingForm();
+      }
+    };
+
+    // Form data for the meeting location modal
+    $scope.meetingLocation = {};
+    $scope.meetingLocation.name = "test";
+    $scope.meetingLocation.description = "test";
+    $scope.meetingLocation.private = false;
+
+
+    // Create the login modal that we will use later
+    $ionicModal.fromTemplateUrl('templates/meetingLocationForm.html', {
+      scope: $scope
+    }).then(function (modal) {
+      $scope.modal = modal;
+    });
+
+    // Triggered in the login modal to close it
+    $scope.closeMeetingForm = function () {
+      $scope.modal.hide();
+    };
+
+    // Open the meeting form modal
+    $scope.openMeetingForm = function () {
+      $scope.modal.show();
+    };
+
+    // Perform the login action when the user submits the login form
+    $scope.saveMeetingLocation = function () {
+      console.log('Doing login', $scope.loginData);
+
+      // Simulate a login delay. Remove this and replace with your login
+      // code if using a login system
+      $timeout(function () {
+        $scope.closeMeetingForm();
+      }, 1000);
+    };
+
   }]);
 
 // delete inactive users every 15 sec

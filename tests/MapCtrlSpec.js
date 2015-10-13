@@ -11,6 +11,8 @@ describe('Testing MapCtrl', function() {
 
   beforeEach(function() {
     module('ngCordovaMocks');
+    module('starter.factories');
+    module('starter.services');
   });
 
   beforeEach(inject(function ($rootScope, $controller, $q, $cordovaGeolocation, $compile) {

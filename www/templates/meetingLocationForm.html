@@ -1,0 +1,34 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <h1 class="title">Login</h1>
+
+    <div class="buttons">
+      <button class="button button-clear" ng-click="closeMeetingForm()">Close</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <form ng-submit="saveMeetingLocation()">
+      <div class="list">
+        <label class="item item-input">
+          <span class="input-label">Meeting Location Name</span>
+          <input type="text" ng-model="meetingLocation.name">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Date/Time</span>
+          <input type="datetime-local" ng-model="meetingLocation.startDate">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Description</span>
+          <input type="text" ng-model="meetingLocation.description">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Private</span>
+          <input type="checkbox" ng-model="meetingLocation.private">
+        </label>
+        <label class="item">
+          <button class="button button-block button-positive" type="submit">Save</button>
+        </label>
+      </div>
+    </form>
+  </ion-content>
+</ion-modal-view>

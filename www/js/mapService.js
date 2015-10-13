@@ -6,6 +6,8 @@ angular.module('starter.factories')
 
     MapService.map = null;
     MapService.infoWindow = null;
+    MapService.longPress = false;
+    MapService.startMouseDown = null;
 
     var iconBase = './img/';
     MapService.icons = {
@@ -42,6 +44,42 @@ angular.module('starter.factories')
       return window;
     };
 
+    MapService.initializeEvents = function() {
+      /*google.maps.event.addListener(marker,'click', function (event) {
+        (longpress) ? console.log("Long Press") : console.log("Short Press");
+      });
+    */
+/*      MapService.map.addListener(marker,'click', function (event) {
+        (MapService.longPress) ? console.log("Long Press") : console.log("Short Press");
+      });*/
+
+      MapService.map.addListener('mousedown', function(event){
+        MapService.startMouseDown = new Date().getTime();
+      });
+
+      MapService.map.addListener('mouseup', function(event){
+
+        var end = new Date().getTime();
+        MapService.longPress = (end - MapService.startMouseDown < 500) ? false : true;
+
+      });
+    };
+
+    MapService.createMarker = function(title, description) {
+      var marker = new google.maps.Marker({map: MapService.map, icon: MapService.icons[userInfo.randomIcon]['icon']});
+      google.maps.event.addListener(marker, 'click', function () {
+        if(angular.isDefined(title) && title !== null && title.length !== 0) {
+          MapService.infoWindow.setTitle(title);
+        }
+
+        if(angular.isDefined(description) && description !== null && description.length !== 0) {
+          MapService.infoWindow.setContent(description);
+        }
+
+        MapService.infoWindow.open(MapService.map, this);
+      });
+    };
+
 
    MapService.refreshMarkers = function () {
       if (!MapService.map) return;
@@ -67,7 +105,7 @@ angular.module('starter.factories')
           var marker = new google.maps.Marker({map: MapService.map, icon: MapService.icons[userInfo.randomIcon]['icon']});
           google.maps.event.addListener(marker, 'click', function () {
             MapService.infoWindow.setContent(marker.getTitle());
-            MapService.infoWindow.open(MapService.map, marker);
+            MapService.infoWindow.open(MapService.map, this);
           });
           userInfo.marker = marker;
         }
