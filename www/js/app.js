@@ -22,8 +22,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.factories'])
   });
 
   $rootScope.$on('$stateChangeStart', function (event,next, nextParams, fromState) {
-    //change to UserFactory?
-    if (!UserFactory.isAuthenticated) {
+    if (!UserFactory.currentUser.isAuthenticated) {
       if (next.name !== 'app.login') {
         event.preventDefault();
         $state.go('app.login');

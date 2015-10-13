@@ -1,4 +1,4 @@
-angular.module('starter.factories', [])
+angular.module('starter.factories')
 
 .factory('UserFactory', function() {
     var userObject = {};
@@ -6,10 +6,11 @@ angular.module('starter.factories', [])
     userObject.name = '';
     userObject.phoneNumber = '';
     userObject.isAuthenticated = false;
-    userObject.latitude = null;
-    userObject.longitude = null;
+    userObject.coordinates = null;
     userObject.meetingLocations = {};
     userObject.timestamp = 0;
+    userObject.randomIcon = Math.ceil(Math.random() * 5);
+    userObject.marker = null;
 
     var users = {};
 

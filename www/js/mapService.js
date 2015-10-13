@@ -1,4 +1,4 @@
-angular.module('starter.services', ['ngCordova'])
+angular.module('starter.factories')
 
   .factory('MapService', ['$timeout', '$cordovaGeolocation', 'UserFactory', function($timeout, $cordovaGeolocation, UserFactory) {
 
@@ -28,7 +28,7 @@ angular.module('starter.services', ['ngCordova'])
 
     MapService.initializeMap = function (longitude, latitude) {
       var map = new google.maps.Map(angular.element(document.querySelector('#map'))[0], {
-        zoom: 8,
+        zoom: 15,
         center: new google.maps.LatLng(longitude, latitude),
         mapTypeId: google.maps.MapTypeId.ROADMAP
       });
@@ -48,7 +48,7 @@ angular.module('starter.services', ['ngCordova'])
       if (!UserFactory.currentUser.movedMapCenter && UserFactory.currentUser.timestamp) {
         UserFactory.currentUser.movedMapCenter = true;
         MapService.map.setCenter(new google.maps.LatLng(
-          UserFactory.currentUserInfo.latitude, UserFactory.currentUserInfo.longitude));
+          UserFactory.currentUser.coordinates.latitude, UserFactory.currentUser.coordinates.longitude));
       }
 
       for (var id in UserFactory.users) {
@@ -74,7 +74,7 @@ angular.module('starter.services', ['ngCordova'])
         //Move the markers
         userInfo.marker.setTitle(userInfo.name);
         userInfo.marker.setPosition(
-          new google.maps.LatLng(userInfo.latitude, userInfo.longitude));
+          new google.maps.LatLng(userInfo.coordinates.latitude, userInfo.coordinates.longitude));
       }
 
       // Refresh the markers every 2 seconds
@@ -83,7 +83,6 @@ angular.module('starter.services', ['ngCordova'])
 
       var timer = $timeout(function(){
         MapService.refreshMarkers();
-        console.log(timer.$$timeoutId);
         $timeout.cancel(timer);
       }, 1000);
     };

@@ -43,224 +43,58 @@ angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starte
   })
   .controller('LoginCtrl',['$scope', 'UserFactory', 'AuthService', function($scope, UserFactory, AuthService) {
     AuthService.login().then(function(credentials) {
-      UserFactory.name = credentials.name;
-      UserFactory.phoneNumber = credentials.phoneNumber;
-      UserFactory.isAuthenticated = credentials.isAuthenticated;
+      if(angular.isDefined(credentials) && credentials != null) {
+        UserFactory.currentUser.id = credentials.id;
+        UserFactory.currentUser.name = credentials.name;
+        UserFactory.currentUser.phoneNumber = credentials.phoneNumber;
+        UserFactory.currentUser.isAuthenticated = credentials.isAuthenticated;
+      } else {
+        //handle not being able to login
+      }
+
     });
   }])
-  .controller('MapCtrl', ['$scope', '$cordovaGeolocation', '$ionicPlatform', function ($scope, $cordovaGeolocation, $ionicPlatform) {
-    var iconBase = './img/';
-    $scope.icons = {
-      1: {
-        icon: iconBase + 'pikachu.png'
-      },
-      2: {
-        icon: iconBase + 'charizard.png'
-      },
-      3: {
-        icon: iconBase + 'blastoise.png'
-      },
-      4: {
-        icon: iconBase + 'venusaur.png'
-      },
-      5: {
-        icon: iconBase + 'snorlax.png'
-      }
-    };
-    // User Infomation
-    $scope.currentUserInfo = null;
-    $scope.users = {};
-    // Google Maps UI
-    $scope.map = null;
-    $scope.infowindow = null;
+  .controller('MapCtrl', ['$scope', '$cordovaGeolocation', '$ionicPlatform', 'DeviceInformationFactory', 'UserFactory', 'MapService', 'LocationService', function ($scope, $cordovaGeolocation, $ionicPlatform, DeviceInformationFactory, UserFactory, MapService, LocationService) {
+
     $scope.refreshTimeout = null;
     $scope.refreshLocationTimeout = null;
 
-    $scope.initLocationSharing = function (location_callback) {
-      var randomGuid = guid();
-      $scope.userInfo = {
-        id: randomGuid, // Something like.. 5dccc6c8-717d-49928b84
-        name: randomGuid,
-        randomIcon: Math.ceil(Math.random() * 5)
-      };
-
-      // ================================
-      // Setup Socket IO
-      // ================================
-      $scope.socket = io.connect('localhost:8888');
-
-      $scope.socket.on('connect', function () {
-        $scope.socket.on('get_location', function (location) {
-          //console.log("emitting location");
-          //#if (!(location.id in $scope.users)) {
-          //console.log("userLocationUpdate")
-          location_callback(location);
-          //}
-        })
-      });
-
-      // ================================
-      // Setup Geolocation
-      // ================================
-      if (!navigator.geolocation) {
-        return $scope.userInfo;
-      }
-
-      $scope.geo_success = function (position, coordinates) {
-        //console.log("geosuccess");
-        var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-        if (coordinates) {
-          $scope.userInfo.latitude = coordinates.latitude + (plusOrMinus * (Math.random() * .01));
-          $scope.userInfo.longitude = coordinates.longitude + (plusOrMinus * (Math.random() * .01));
-        } else {
-          $scope.userInfo.latitude = position.coords.latitude + (plusOrMinus * (Math.random() * .01));
-          $scope.userInfo.longitude = position.coords.longitude + (plusOrMinus * (Math.random() * .01));
-        }
-        location_callback($scope.userInfo);
-        $scope.sendLocation();
-      };
-
-      $scope.geo_success_cordova = function (position) {
-        //console.log("geosuccess");
-        var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-        if (position) {
-          $scope.userInfo.latitude = position.coords.latitude + (plusOrMinus * (Math.random() * .01));
-          $scope.userInfo.longitude = position.coords.longitude + (plusOrMinus * (Math.random() * .01));
-        }
-        location_callback($scope.userInfo);
-        $scope.sendLocation();
-      };
-
-      $scope.geo_error = function () {
-        //error_callback();
-      };
-
-      $scope.sendLocationTimeout = null;
-      $scope.sendLocation = function () {
-        $scope.socket.emit('send_location', $scope.userInfo);
-        clearTimeout($scope.sendLocationTimeout);
-        $scope.sendLocationTimeout = setTimeout($scope.sendLocation, 1000 * 5);
-      };
-
-      var posOptions = {timeout: 10000, enableHighAccuracy: false};
-      $cordovaGeolocation.getCurrentPosition(posOptions).then($scope.geo_success_cordova, $scope.geo_error);
-
-      var watchOptions = {
-        timeout: 3000,
-        enableHighAccuracy: false // may cause errors if true
-      };
-
-      var watch = $cordovaGeolocation.watchPosition(watchOptions);
-      watch.then(
-        null,
-        function (err) {
-          // error
-        },
-        $scope.geo_success_cordova);
-
-      $cordovaGeolocation.clearWatch(watch)
-
-      // Refresh the markers every 2 seconds
-      clearTimeout($scope.refreshLocationTimeout)
-      $scope.refreshLocationTimeout = setTimeout(function () {
-        var coordinates = {latitude: $scope.userInfo.latitude, longitude: $scope.userInfo.longitude}
-        $scope.geo_success(null, coordinates);
-      }, 1000 * 2);
-
-      setInterval(function () {
-        var coordinates = {latitude: $scope.userInfo.latitude, longitude: $scope.userInfo.longitude}
-        $scope.geo_success(null, coordinates);
-      }, 2000);
-
-
-      return $scope.userInfo;
-    };
-
-    $scope.userLocationUpdate = function (userInfo) {
-      //console.log("updating location")
-      if (!$scope.users[userInfo.id]) $scope.users[userInfo.id] = {id: userInfo.id};
-      //console.log(userInfo);
-      $scope.users[userInfo.id].name = userInfo.name;
-      $scope.users[userInfo.id].latitude = userInfo.latitude;
-      $scope.users[userInfo.id].longitude = userInfo.longitude;
-      $scope.users[userInfo.id].timestamp = new Date().getTime();
-      $scope.users[userInfo.id].randomIcon = userInfo.randomIcon;
-      /*console.log(userInfo.name);
-      console.log(userInfo.latitude);
-      console.log(userInfo.longitude);
-      console.log(userInfo.timestamp);*/
-      $scope.refreshMarkers();
-    };
-
-    $scope.refreshMarkers = function () {
-      if (!$scope.map) return;
-      //console.log("refreshing markers");
-      if (!$scope.currentUserInfo.movedMapCenter && $scope.currentUserInfo.timestamp) {
-        /* $('#user-name').val(currentUserInfo.name);
-         $('#user-name').bind('keyup', function() {
-         currentUserInfo.name = $('#user-name').val();
-         })*/
-        $scope.currentUserInfo.movedMapCenter = true;
-        $scope.map.setCenter(new google.maps.LatLng(
-          $scope.currentUserInfo.latitude, $scope.currentUserInfo.longitude));
-      }
-      for (var id in $scope.users) {
-        var userInfo = $scope.users[id];
-        /*        if(userInfo.id == $scope.currentUserInfo.id)
-         $scope.currentUserInfo = userInfo.id;*/
-        if (userInfo.marker) {
-
-          // If we havn't received any update from the user
-          //  We remove the marker of missing user
-          if (userInfo.id != $scope.currentUserInfo.id &&
-            userInfo.timestamp + 1000 * 30 < new Date().getTime()) {
-            userInfo.marker.setMap(null);
-            delete $scope.users[id];
-            continue;
-          }
-        } else {
-          // Create a marker for the new user
-          /*console.log("getting icon");
-          console.log(userInfo);
-          console.log($scope.icons[userInfo.randomIcon]);*/
-          var marker = new google.maps.Marker({map: $scope.map, icon: $scope.icons[userInfo.randomIcon]['icon']});
-          google.maps.event.addListener(marker, 'click', function () {
-            $scope.infowindow.setContent(marker.getTitle())
-            $scope.infowindow.open($scope.map, marker);
-          });
-          userInfo.marker = marker;
-        }
-        //Move the markers
-        //console.log("moving the marker");
-        userInfo.marker.setTitle(userInfo.name);
-        userInfo.marker.setPosition(
-          new google.maps.LatLng(userInfo.latitude, userInfo.longitude));
-      }
-
-      /* $('#user-number').text(Math.max(Object.keys(users).length-1,0) +'')*/
-      // Refresh the markers every 2 seconds
-      clearTimeout($scope.refreshTimeout);
-      $scope.refreshTimeout = setTimeout($scope.refreshMarkers, 1000 * 2);
-    };
-
-    $scope.mapInitialize = function () {
-      //console.log("initilizing map");
-      $scope.map = new google.maps.Map(angular.element(document.querySelector('#map'))[0], {
-        zoom: 8,
-        center: new google.maps.LatLng(40, -74),
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-      });
-      $scope.infowindow = new google.maps.InfoWindow({content: 'Test'});
-      google.maps.event.addListener(map, 'click', function () {
-        infowindow.close(map);
-      });
-      $scope.refreshMarkers();
-    };
 
     $ionicPlatform.ready(function () {
-      $scope.currentUserInfo = $scope.initLocationSharing($scope.userLocationUpdate);
+      if (!navigator.geolocation) {
+        $ionicPopup.alert({
+          title: 'Location Services Disabled',
+          content: 'Please enable location services.'
+        }).then(function(res) {
+          console.log('Location Services was not enabled: ' + res);
+        });
+      } else {
 
-      $scope.mapInitialize();
+          if(window.cordova) {
+            LocationService.getCordovaCurrentLocation();
+          } else {
+            LocationService.getWebCurrentLocation();
+          }
+
+          LocationService.connectSockets();
+
+          // Refresh the markers every 2 seconds
+          clearTimeout($scope.refreshLocationTimeout)
+          $scope.refreshLocationTimeout = setTimeout(function () {
+            var position = {};
+            position.coords = {latitude:  UserFactory.currentUser.coordinates.latitude, longitude:  UserFactory.currentUser.coordinates.longitude};
+            LocationService.geo_success(position);
+          }, 1000 * 2);
+
+          setInterval(function () {
+            var position = {};
+            position.coords = {latitude:  UserFactory.currentUser.coordinates.latitude, longitude:  UserFactory.currentUser.coordinates.longitude};
+            LocationService.geo_success(position);
+          }, 2000);
+        //possibly use ionicView.enter
+        /*$scope.$on('$ionicView.enter', function(){
+        });*/
+      }
     });
   }]);
 
@@ -274,13 +108,3 @@ angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starte
  }
  }, 15000);
  */
-
-
-function guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16).substring(1);
-  }
-
-  return s4() + s4() + '-' + s4() + '-' + s4() + s4();
-}
