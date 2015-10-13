@@ -14,11 +14,11 @@ angular.module('starter.services', [])
     };
 
     function useCredentials(phoneNumber) {
-      return $http.get('http://localhost:3000/users', {params:{'phonenumber':phoneNumber}}).then(function(user) {
+      return $http.get('http://localhost:3000/users', {params:{'phoneNumber':phoneNumber}}).then(function(user) {
         if(angular.isDefined(user.data[0]) && user.data[0] != null) {
           return user.data[0];
         } else {
-          return $http.post('http://localhost:3000/users', {'phonenumber' : phoneNumber, 'name': phoneNumber}).then(function(user) {
+          return $http.post('http://localhost:3000/users', {'phoneNumber' : phoneNumber, 'name': phoneNumber}).then(function(user) {
             if(angular.isDefined(user.data.ops[0]) && user.data.ops[0] != null) {
               return user.data.ops[0];
             }
@@ -41,7 +41,7 @@ angular.module('starter.services', [])
               reject(userObject);
             }
             userObject.name = user.name;
-            userObject.phoneNumber = user.phonenumber;
+            userObject.phoneNumber = user.phoneNumber;
             userObject.isAuthenticated = true;
             resolve(userObject);
           });

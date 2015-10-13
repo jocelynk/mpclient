@@ -9,16 +9,6 @@ angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starte
     //$scope.$on('$ionicView.enter', function(e) {
     //});
 
-   /* $ionicPlatform.ready(function () {
-      window.plugins.sim.getSimInfo(function (simInfo) {
-        console.log(simInfo);
-
-      }, function (error) {
-        console.log(error);
-
-      });
-    });*/
-
 
     // Form data for the login modal
     $scope.loginData = {};
@@ -54,7 +44,7 @@ angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starte
   .controller('LoginCtrl',['$scope', 'UserFactory', 'AuthService', function($scope, UserFactory, AuthService) {
     AuthService.login().then(function(credentials) {
       UserFactory.name = credentials.name;
-      UserFactory.phonenumber = credentials.phonenumber;
+      UserFactory.phoneNumber = credentials.phoneNumber;
       UserFactory.isAuthenticated = credentials.isAuthenticated;
     });
   }])
@@ -173,12 +163,12 @@ angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starte
       // Refresh the markers every 2 seconds
       clearTimeout($scope.refreshLocationTimeout)
       $scope.refreshLocationTimeout = setTimeout(function () {
-        coordinates = {latitude: $scope.userInfo.latitude, longitude: $scope.userInfo.longitude}
+        var coordinates = {latitude: $scope.userInfo.latitude, longitude: $scope.userInfo.longitude}
         $scope.geo_success(null, coordinates);
       }, 1000 * 2);
 
       setInterval(function () {
-        coordinates = {latitude: $scope.userInfo.latitude, longitude: $scope.userInfo.longitude}
+        var coordinates = {latitude: $scope.userInfo.latitude, longitude: $scope.userInfo.longitude}
         $scope.geo_success(null, coordinates);
       }, 2000);
 
@@ -249,7 +239,7 @@ angular.module('starter.controllers', ['ngCordova', 'starter.factories', 'starte
 
       /* $('#user-number').text(Math.max(Object.keys(users).length-1,0) +'')*/
       // Refresh the markers every 2 seconds
-      clearTimeout($scope.refreshTimeout)
+      clearTimeout($scope.refreshTimeout);
       $scope.refreshTimeout = setTimeout($scope.refreshMarkers, 1000 * 2);
     };
 
