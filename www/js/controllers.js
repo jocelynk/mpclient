@@ -62,7 +62,8 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
 
     });
   }])
-  .controller('MapCtrl', ['$scope', '$state', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'DeviceInformationFactory', 'UserFactory', 'MapService', 'LocationService', function ($scope, $state, $cordovaGeolocation, $ionicPlatform, $ionicModal, DeviceInformationFactory, UserFactory, MapService, LocationService) {
+  .controller('MapCtrl', ['$scope', '$state', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService',
+    function ($scope, $state, $cordovaGeolocation, $ionicPlatform, $ionicModal, UserFactory, MapService, LocationService, MeetingLocationService) {
 
     $scope.infoWindow = null;
     $scope.refreshTimeout = null;
@@ -108,7 +109,7 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
     $scope.placeMarker = function(e) {
       console.log(e);
       if(MapService.longPress) {
-        var marker = new google.maps.Marker({position: e.latLng, map: MapService.map, draggable: true});
+        MeetingLocationService.marker = new google.maps.Marker({position: e.latLng, map: MapService.map, draggable: true});
         MapService.map.panTo(e.latLng);
 
         $scope.openMeetingForm();
@@ -117,9 +118,11 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
 
     // Form data for the meeting location modal
     $scope.meetingLocation = {};
-    $scope.meetingLocation.name = "test";
-    $scope.meetingLocation.description = "test";
+    $scope.meetingLocation.name = "";
+    $scope.meetingLocation.description = "";
     $scope.meetingLocation.private = false;
+    $scope.meetingLocation.startDate = null;
+    $scope.meetingLocation.ownerId = UserFactory.currentUser.id;
 
 
     // Create the login modal that we will use later
@@ -141,13 +144,18 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
 
     // Perform the login action when the user submits the login form
     $scope.saveMeetingLocation = function () {
-      console.log('Doing login', $scope.loginData);
+      $scope.meetingLocation.latitude = MeetingLocationService.marker.getPosition().lat();
+      $scope.meetingLocation.longitude = MeetingLocationService.marker.getPosition().lng();
 
-      // Simulate a login delay. Remove this and replace with your login
-      // code if using a login system
-      $timeout(function () {
-        $scope.closeMeetingForm();
-      }, 1000);
+      MeetingLocationService.saveMeetingLocation($scope.meetingLocation).then(function(location) {
+        console.log(location);
+        if(angular.isDefined(location.data.ops[0]) && location.data.ops[0] != null) {
+          return location.data.ops[0];
+        }
+      }, function(err) {
+        console.log(err);
+        return null;
+      });
     };
 
   }]);
