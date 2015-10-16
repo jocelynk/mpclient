@@ -107,14 +107,25 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
     });
 
     $scope.placeMarker = function(e) {
-      console.log(e);
+      console.log('e: ' + e);
       if(MapService.longPress) {
-        MeetingLocationService.marker = new google.maps.Marker({position: e.latLng, map: MapService.map, draggable: true});
+        MeetingLocationService.marker = new google.maps.Marker(
+          {position: e.latLng, map: MapService.map, draggable: true});
         MapService.map.panTo(e.latLng);
-
         $scope.openMeetingForm();
       }
+      
     };
+
+    $scope.displayInfoWindow = function(message) {
+      var infowindow = new google.maps.InfoWindow({
+          content: message//$scope.meetingLocation.name // 
+      });
+      google.maps.event.addListener(MeetingLocationService.marker, 'click', function (){
+        // infowindow.setContent(this.html);
+        infowindow.open(MapService.map, this);
+      });
+    }
 
     // Form data for the meeting location modal
     $scope.meetingLocation = {};
@@ -125,12 +136,13 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
     $scope.meetingLocation.ownerId = UserFactory.currentUser.id;
 
 
-    // Create the login modal that we will use later
     $ionicModal.fromTemplateUrl('templates/meetingLocationForm.html', {
       scope: $scope
     }).then(function (modal) {
       $scope.modal = modal;
     });
+
+
 
     // Triggered in the login modal to close it
     $scope.closeMeetingForm = function () {
@@ -142,7 +154,6 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
       $scope.modal.show();
     };
 
-    // Perform the login action when the user submits the login form
     $scope.saveMeetingLocation = function () {
       $scope.meetingLocation.latitude = MeetingLocationService.marker.getPosition().lat();
       $scope.meetingLocation.longitude = MeetingLocationService.marker.getPosition().lng();
@@ -156,6 +167,11 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
         console.log(err);
         return null;
       });
+      var infomessage = $scope.meetingLocation.name;
+      $scope.displayInfoWindow(infomessage);
+      $scope.modal.hide();
+
+
     };
 
   }]);

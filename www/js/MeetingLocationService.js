@@ -5,7 +5,7 @@ angular.module('starter.factories')
     MeetingLocationService.marker = null;
 
     MeetingLocationService.getMeetingLocations = function() {
-      return $http.get('http://10.128.13.166:3000/meetingLocations', {params:{'locationIds':UserFactory.meetingLocations}})
+      return $http.get('http://10.128.8.38:5000/meetingLocations', {params:{'locationIds':UserFactory.meetingLocations}})
         .then(function(locations) {
           return locations;
         }, function(err) {
@@ -16,7 +16,7 @@ angular.module('starter.factories')
     //JSON.stringify(ids)
 
     MeetingLocationService.saveMeetingLocation = function(meetingLocation) {
-      return $http.post('http://10.128.13.166:3000/meetingLocations', {'location' : meetingLocation});
+      return $http.post('http://10.128.8.38:5000/meetingLocations', {'location' : meetingLocation});
     };
 
     MeetingLocationService.deleteMeetingLocations = function() {
