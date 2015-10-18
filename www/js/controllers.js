@@ -67,15 +67,15 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
 
         $scope.hide();
         LocationService.getLocation();
-        $state.go('app.maps');
+        //$state.go('app.maps');
       } else {
         //handle not being able to login
       }
 
     });
   }])
-  .controller('MapCtrl', ['$scope', '$state', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService',
-    function ($scope, $state, $cordovaGeolocation, $ionicPlatform, $ionicModal, UserFactory, MapService, LocationService, MeetingLocationService) {
+  .controller('MapCtrl', ['$scope', '$state', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService', 'ContactsService',
+    function($scope, $state, $cordovaGeolocation, $ionicPlatform, $ionicModal, UserFactory, MapService, LocationService, MeetingLocationService, ContactsService) {
 
       $scope.infoWindow = null;
       $scope.refreshTimeout = null;
@@ -128,7 +128,6 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
         }
       });
 
-
       $scope.placeMarker = function (e) {
         console.log(e);
         if (MapService.longPress) {
@@ -144,27 +143,6 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
           $scope.openMeetingForm({});
         }
       };
-
-
-
-      /*$scope.displayInfoWvar infowindow = new google.maps.InfoWindow({
-       content: message//$scope.meetingLocation.name //
-       });indow = function(message) {
-        var infowindow = new google.maps.InfoWindow({
-          content: message//$scope.meetingLocation.name //
-        });
-        google.maps.event.addListener(MeetingLocationService.marker, 'click', function (){
-          // infowindow.setContent(this.html);
-          infowindow.open(MapService.map, this);
-        });
-
-        google.maps.event.addListener(MeetingLocationService.marker, 'dblclick', function (){
-          // infowindow.setContent(this.html);
-          $scope.openMeetingForm();
-        });
-      };*/
-
-
 
       // Create the login modal that we will use later
       $ionicModal.fromTemplateUrl('templates/meetingLocationForm.html', {
@@ -230,6 +208,27 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
           return null;
         });
       };
+
+      //to store the contacts that the user invites
+      $scope.contactData = {
+        selectedContacts : []
+      };
+
+      $scope.pickContact = function() {
+
+        ContactsService.pickContact().then(
+          function(contact) {
+            $scope.contactData.selectedContacts.push(contact);
+            console.log("Selected contacts=");
+            console.log($scope.data.selectedContacts);
+
+          },
+          function(failure) {
+            console.log("Failed to pick a contact");
+          }
+        );
+
+      }
 
     }]);
 
