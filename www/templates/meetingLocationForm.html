@@ -7,7 +7,7 @@
     </div>
   </ion-header-bar>
   <ion-content>
-    <form ng-submit="saveMeetingLocation()">
+    <form name="meetingForm" ng-submit="saveMeetingLocation()">
       <div class="list">
         <label class="item item-input">
           <span class="input-label">Meeting Location Name</span>
@@ -15,15 +15,20 @@
         </label>
         <label class="item item-input">
           <span class="input-label">Date/Time</span>
-          <input type="datetime-local" ng-model="meetingLocation.startDate">
+          <input type="datetime-local" ng-model="meetingLocation.date">
         </label>
         <label class="item item-input">
           <span class="input-label">Description</span>
           <input type="text" ng-model="meetingLocation.description">
         </label>
-        <label class="item item-input">
+        <label class="item">
           <span class="input-label">Private</span>
           <input type="checkbox" ng-model="meetingLocation.private">
+        </label>
+        <label class="item item-input">
+          <span class = "input-label">Invite</span>
+          <input type="text" ng-model="meetingLocation.attendees">
+          <button class = "button" ng-click = "pickContact()">Contacts</button>
         </label>
         <label class="item">
           <button class="button button-block button-positive" type="submit">Save</button>

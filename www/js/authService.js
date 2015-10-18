@@ -14,11 +14,11 @@ angular.module('starter.services')
     };
 
     function useCredentials(phoneNumber) {
-      return $http.get('http://10.128.13.166:3000/users', {params:{'phoneNumber':phoneNumber}}).then(function(user) {
-        if(angular.isDefined(user.data[0]) && user.data[0] != null) {
+      return $http.get('http://192.168.1.4:5000/user/2de4' /*+ phoneNumber/*, {params:{'phoneNumber':phoneNumber}}*/).then(function(user) {
+        if(angular.isDefined(user.data) && user.data != null && user.data.length > 0) {
           return user.data[0];
         } else {
-          return $http.post('http://10.128.13.166:3000/users', {'phoneNumber' : phoneNumber, 'name': phoneNumber}).then(function(user) {
+          return $http.post('http://192.168.1.4:5000/user', {'phoneNumber' : phoneNumber, 'name': phoneNumber, 'status': 'active'}).then(function(user) {
             if(angular.isDefined(user.data.ops[0]) && user.data.ops[0] != null) {
               return user.data.ops[0];
             }
@@ -28,11 +28,12 @@ angular.module('starter.services')
           });
         }
       }, function(err) {
-        console.log(error);
+        console.log(err);
       });
     }
 
-    var login = function() {
+    var login = function(loading_callback) {
+      loading_callback();
       return $q(function(resolve, reject) {
         if(window.plugins && window.plugins.sim) {
           window.plugins.sim.getSimInfo(function (simInfo) {
@@ -45,6 +46,7 @@ angular.module('starter.services')
                 userObject.name = user.name;
                 userObject.phoneNumber = user.phoneNumber;
                 userObject.isAuthenticated = true;
+                userObject.meetingLocations = user.meetings;
                 resolve(userObject);
               }
 
@@ -65,6 +67,7 @@ angular.module('starter.services')
               userObject.name = user.name;
               userObject.phoneNumber = user.phoneNumber;
               userObject.isAuthenticated = true;
+              userObject.meetingLocations = user.meetings;
               resolve(userObject);
             }
           });
