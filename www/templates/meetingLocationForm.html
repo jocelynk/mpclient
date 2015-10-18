@@ -21,9 +21,13 @@
           <span class="input-label">Description</span>
           <input type="text" ng-model="meetingLocation.description">
         </label>
-        <label class="item item-input">
+        <label>
           <span class="input-label">Private</span>
-          <input type="checkbox" ng-model="meetingLocation.private">
+          <input type="checkbox" ng-model="meetingLocation.private"> 
+        </label>
+        <label class="item item-input">
+          <span class = "input-label">Invite</span>
+          <button class = "button" ng-click = "pickContact()">Contacts</button>
         </label>
         <label class="item">
           <button class="button button-block button-positive" type="submit">Save</button>

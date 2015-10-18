@@ -62,8 +62,8 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
 
     });
   }])
-  .controller('MapCtrl', ['$scope', '$state', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService',
-    function ($scope, $state, $cordovaGeolocation, $ionicPlatform, $ionicModal, UserFactory, MapService, LocationService, MeetingLocationService) {
+  .controller('MapCtrl', ['$scope', '$state', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService', 'ContactsService',
+    function($scope, $state, $cordovaGeolocation, $ionicPlatform, $ionicModal, UserFactory, MapService, LocationService, MeetingLocationService, ContactsService) {
 
     $scope.infoWindow = null;
     $scope.refreshTimeout = null;
@@ -108,11 +108,29 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
     });
 
     $scope.placeMarker = function(e) {
-      console.log(e);
+      console.log('e: ' + e);
       if(MapService.longPress) {
-        MeetingLocationService.marker = new google.maps.Marker({position: e.latLng, map: MapService.map, draggable: true});
+        MeetingLocationService.marker = new google.maps.Marker(
+          {position: e.latLng, map: MapService.map, draggable: true});
         MapService.map.panTo(e.latLng);
+        $scope.openMeetingForm();
+      }
 
+    };
+
+    $scope.displayInfoWindow = function(message) {
+      var contentString =
+        '<h1 class="title">' + message + '</h1>' +
+        '<button class="button button-clear" ng-click="closeMeetingForm()">Close</button>';
+
+      var infowindow = new google.maps.InfoWindow({
+          content: contentString //message//$scope.meetingLocation.name //
+      });
+      google.maps.event.addListener(MeetingLocationService.marker, 'click', function (){
+        // infowindow.setContent(this.html);
+        infowindow.open(MapService.map, this);
+      });
+      if(MapService.longPress){
         $scope.openMeetingForm();
       }
     };
@@ -126,12 +144,13 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
     $scope.meetingLocation.ownerId = UserFactory.currentUser.id;
 
 
-    // Create the login modal that we will use later
     $ionicModal.fromTemplateUrl('templates/meetingLocationForm.html', {
       scope: $scope
     }).then(function (modal) {
       $scope.modal = modal;
     });
+
+
 
     // Triggered in the login modal to close it
     $scope.closeMeetingForm = function () {
@@ -169,7 +188,35 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
         console.log(err);
         return null;
       });
+      var infomessage = $scope.meetingLocation.name;
+      $scope.displayInfoWindow(infomessage);
+      $scope.modal.hide();
+
+
     };
+
+    //to store the contacts that the user invites
+    $scope.contactData = {
+      selectedContacts : []
+    };
+
+    $scope.pickContact = function() {
+
+      ContactsService.pickContact().then(
+          function(contact) {
+              $scope.contactdata.selectedContacts.push(contact);
+              console.log("Selected contacts=");
+              console.log($scope.data.selectedContacts);
+
+          },
+          function(failure) {
+              console.log("Failed to pick a contact");
+          }
+      );
+
+    }
+
+
 
   }]);
 

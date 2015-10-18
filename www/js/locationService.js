@@ -3,7 +3,6 @@ angular.module('starter.factories')
   .factory('LocationService', ['$timeout', '$q', '$cordovaGeolocation', 'UserFactory', 'MapService', function($timeout, $q, $cordovaGeolocation, UserFactory, MapService) {
     var LocationService = {};
 
-
     var socket = io.connect('http://mp-server.herokuapp.com:80');
     LocationService.getLocation = function() {
 

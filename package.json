@@ -32,7 +32,8 @@
     "cordova-plugin-splashscreen",
     "com.ionic.keyboard",
     "cordova-plugin-sim",
-    "cordova-plugin-geolocation"
+    "cordova-plugin-geolocation",
+    "org.apache.cordova.contacts"
   ],
   "cordovaPlatforms": [
     "android"

@@ -19,6 +19,7 @@ angular.module('starter.services')
           return user.data[0];
         } else {
           return $http.post('http://192.168.1.4:5000/users', {'phoneNumber' : phoneNumber, 'name': phoneNumber}).then(function(user) {
+
             if(angular.isDefined(user.data.ops[0]) && user.data.ops[0] != null) {
               return user.data.ops[0];
             }
@@ -28,7 +29,7 @@ angular.module('starter.services')
           });
         }
       }, function(err) {
-        console.log(error);
+        console.log(err);
       });
     }
 
