@@ -6,6 +6,7 @@ angular.module('starter.factories')
 
     MeetingLocationService.getMeetingLocations = function() {
       return $http.get('http://192.168.1.4:5000/meetingLocations', {params:{'locationIds':UserFactory.meetingLocations}})
+
         .then(function(locations) {
           return locations;
         }, function(err) {
