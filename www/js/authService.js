@@ -28,11 +28,12 @@ angular.module('starter.services')
           });
         }
       }, function(err) {
-        console.log(error);
+        console.log(err);
       });
     }
 
-    var login = function() {
+    var login = function(loading_callback) {
+      loading_callback();
       return $q(function(resolve, reject) {
         if(window.plugins && window.plugins.sim) {
           window.plugins.sim.getSimInfo(function (simInfo) {
@@ -66,6 +67,7 @@ angular.module('starter.services')
               userObject.name = user.name;
               userObject.phoneNumber = user.phoneNumber;
               userObject.isAuthenticated = true;
+              userObject.meetingLocations = user.meetings;
               resolve(userObject);
             }
           });

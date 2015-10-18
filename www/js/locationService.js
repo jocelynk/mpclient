@@ -8,7 +8,6 @@ angular.module('starter.factories')
     LocationService.getLocation = function() {
 
       socket.on('get_location', function (userInfo) {
-        console.log(userInfo);
         LocationService.userLocationUpdate(userInfo);
       });
     };

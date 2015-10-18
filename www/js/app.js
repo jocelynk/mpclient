@@ -21,15 +21,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.factories'])
     }
   });
 
-  $rootScope.$on('$stateChangeStart', function (event,next, nextParams, fromState) {
-    if (!UserFactory.currentUser.isAuthenticated) {
-      if (next.name !== 'app.login') {
-        event.preventDefault();
-        $state.go('app.login');
+    $rootScope.$on('$stateChangeStart', function (event, next, nextParams, fromState) {
+      if (!UserFactory.currentUser.isAuthenticated) {
+        if (next.name !== 'app.login') {
+          event.preventDefault();
+          $state.go('app.login');
+        }
       }
-    }
-  });
-})
+    });
+  })
 
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider

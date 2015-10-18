@@ -25,6 +25,9 @@ angular.module('starter.factories')
       },
       5: {
         icon: iconBase + 'snorlax.png'
+      },
+      default: {
+        icon: iconBase + 'default_icon.png'
       }
     };
 
@@ -44,15 +47,7 @@ angular.module('starter.factories')
       return window;
     };
 
-    MapService.initializeEvents = function() {
-      /*google.maps.event.addListener(marker,'click', function (event) {
-        (longpress) ? console.log("Long Press") : console.log("Short Press");
-      });
-    */
-/*      MapService.map.addListener(marker,'click', function (event) {
-        (MapService.longPress) ? console.log("Long Press") : console.log("Short Press");
-      });*/
-
+    MapService.initializeMapEvents = function() {
       MapService.map.addListener('mousedown', function(event){
         MapService.startMouseDown = new Date().getTime();
       });
@@ -60,15 +55,17 @@ angular.module('starter.factories')
       MapService.map.addListener('mouseup', function(event){
 
         var end = new Date().getTime();
-        MapService.longPress = (end - MapService.startMouseDown < 500) ? false : true;
+        MapService.longPress = (end - MapService.startMouseDown < 300) ? false : true;
 
       });
     };
 
-    MapService.createMarker = function(title, description) {
-      var marker = new google.maps.Marker({map: MapService.map, icon: MapService.icons[userInfo.randomIcon]['icon']});
-      google.maps.event.addListener(marker, 'click', function () {
-        if(angular.isDefined(title) && title !== null && title.length !== 0) {
+    MapService.createMarker = function(meetingLocation, icon, callback) {
+      var marker = new google.maps.Marker({map: MapService.map, icon: angular.isDefined(icon) && icon !== null? icon : MapService.icons['default']['icon'], draggable: true});
+      var infoWindow = new google.maps.InfoWindow({content: meetingLocation.description});
+      marker.infoWindow = infoWindow;
+      //google.maps.event.addListener(marker, 'click', function () {
+        /*if(angular.isDefined(title) && title !== null && title.length !== 0) {
           MapService.infoWindow.setTitle(title);
         }
 
@@ -77,7 +74,23 @@ angular.module('starter.factories')
         }
 
         MapService.infoWindow.open(MapService.map, this);
-      });
+*/
+
+        google.maps.event.addListener(marker, 'click', function (){
+
+          marker.infoWindow.setContent(meetingLocation.description);
+          marker.infoWindow.open(MapService.map, this);
+          event.preventDefault();
+        });
+
+        google.maps.event.addListener(marker, 'dblclick', function (){
+
+          callback(meetingLocation);
+          event.preventDefault();
+        });
+
+        marker.setPosition(new google.maps.LatLng(meetingLocation.latitude, meetingLocation.longitude));
+      //});
     };
 
 
