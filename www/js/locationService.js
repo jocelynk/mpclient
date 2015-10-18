@@ -3,7 +3,7 @@ angular.module('starter.factories')
   .factory('LocationService', ['$timeout', '$q', '$cordovaGeolocation', 'UserFactory', 'MapService', function($timeout, $q, $cordovaGeolocation, UserFactory, MapService) {
     var LocationService = {};
 
-    var socket = io.connect('http://10.128.8.38:5000');
+    var socket = io.connect('http://10.128.16.60:5000');
 
     LocationService.getLocation = function() {
       socket.on('get_location', function (userInfo) {

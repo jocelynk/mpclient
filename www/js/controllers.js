@@ -62,8 +62,8 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
 
     });
   }])
-  .controller('MapCtrl', ['$scope', '$state', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService',
-    function ($scope, $state, $cordovaGeolocation, $ionicPlatform, $ionicModal, UserFactory, MapService, LocationService, MeetingLocationService) {
+  .controller('MapCtrl', ['$scope', '$state', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService', 'ContactsService',
+    function($scope, $state, $cordovaGeolocation, $ionicPlatform, $ionicModal, UserFactory, MapService, LocationService, MeetingLocationService, ContactsService) {
 
     $scope.infoWindow = null;
     $scope.refreshTimeout = null;
@@ -118,14 +118,21 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
     };
 
     $scope.displayInfoWindow = function(message) {
+      var contentString = 
+        '<h1 class="title">' + message + '</h1>' +
+        '<button class="button button-clear" ng-click="closeMeetingForm()">Close</button>';
+
       var infowindow = new google.maps.InfoWindow({
-          content: message//$scope.meetingLocation.name // 
+          content: contentString //message//$scope.meetingLocation.name // 
       });
       google.maps.event.addListener(MeetingLocationService.marker, 'click', function (){
         // infowindow.setContent(this.html);
         infowindow.open(MapService.map, this);
       });
-    }
+      if(MapService.longPress){
+        $scope.openMeetingForm();
+      }
+    };
 
     // Form data for the meeting location modal
     $scope.meetingLocation = {};
@@ -173,6 +180,29 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
 
 
     };
+
+    //to store the contacts that the user invites
+    $scope.contactData = {
+      selectedContacts : []
+    };
+
+    $scope.pickContact = function() {
+
+      ContactsService.pickContact().then(
+          function(contact) {
+              $scope.contactdata.selectedContacts.push(contact);
+              console.log("Selected contacts=");
+              console.log($scope.data.selectedContacts);
+
+          },
+          function(failure) {
+              console.log("Failed to pick a contact");
+          }
+      );
+
+    }
+
+
 
   }]);
 
