@@ -88,6 +88,7 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
           map.setCenter(myLatLng);
           MapService.initializeEvents();
 
+
         });
 
           // Refresh the markers every 2 seconds
@@ -142,15 +143,27 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
       $scope.modal.show();
     };
 
+    $scope.resetForm = function ()
+    {
+      $scope.meetingLocation = {};
+      $scope.meetingLocation.name = "";
+      $scope.meetingLocation.description = "";
+      $scope.meetingLocation.private = false;
+      $scope.meetingLocation.startDate = null;
+      $scope.meetingLocation.ownerId = UserFactory.currentUser.id;
+      $scope.meetingForm.$setPristine();
+    };
+
     // Perform the login action when the user submits the login form
     $scope.saveMeetingLocation = function () {
       $scope.meetingLocation.latitude = MeetingLocationService.marker.getPosition().lat();
       $scope.meetingLocation.longitude = MeetingLocationService.marker.getPosition().lng();
 
       MeetingLocationService.saveMeetingLocation($scope.meetingLocation).then(function(location) {
-        console.log(location);
-        if(angular.isDefined(location.data.ops[0]) && location.data.ops[0] != null) {
-          return location.data.ops[0];
+        if(angular.isDefined(location.data) && location.data != null) {
+          $scope.resetForm();
+          $scope.closeMeetingForm();
+          return location.data;
         }
       }, function(err) {
         console.log(err);

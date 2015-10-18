@@ -3,14 +3,15 @@ angular.module('starter.factories')
   .factory('LocationService', ['$timeout', '$q', '$cordovaGeolocation', 'UserFactory', 'MapService', function($timeout, $q, $cordovaGeolocation, UserFactory, MapService) {
     var LocationService = {};
 
-    var socket = io.connect('http://10.128.13.166:8888');
 
+    var socket = io.connect('http://mp-server.herokuapp.com:80');
     LocationService.getLocation = function() {
+
       socket.on('get_location', function (userInfo) {
+        console.log(userInfo);
         LocationService.userLocationUpdate(userInfo);
       });
     };
-
 
 
 
@@ -32,7 +33,7 @@ angular.module('starter.factories')
       var timer = $timeout(function(){
         LocationService.sendLocation();
         $timeout.cancel(timer);
-      }, 1000);
+      }, 3000);
 
       //clearTimeout(LocationService.sendLocationTimeout);
       //LocationService.sendLocationTimeout = setTimeout(LocationService.sendLocation, 1000 * 5);
