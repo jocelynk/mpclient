@@ -156,7 +156,7 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
       };
 
       // Open the meeting form modal
-      $scope.openMeetingForm = function (meetingLocation) {
+      $scope.openMeetingForm = function (meetingLocation, marker) {
         // Form data for the meeting location modal
         $scope.meetingLocation = {};
         $scope.meetingLocation.name = meetingLocation.name || "";
@@ -167,18 +167,10 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
         $scope.meetingLocation.attendees = meetingLocation.attendees || [];
         $scope.meetingLocation._id = meetingLocation._id || null;
 
+        if(marker) {
+          MeetingLocationService.marker = marker;
+        }
         $scope.modal.show();
-      };
-
-      $scope.resetForm = function () {
-        $scope.meetingLocation = {};
-        $scope.meetingLocation.name = "";
-        $scope.meetingLocation.description = "";
-        $scope.meetingLocation.private = false;
-        $scope.meetingLocation.date = null;
-        $scope.meetingLocation.phoneNumber = UserFactory.currentUser.phoneNumber;
-        $scope.meetingLocation.attendees = [];
-        $scope.meetingForm.$setPristine();
       };
 
       // Perform the login action when the user submits the login form
@@ -191,17 +183,17 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
             $scope.closeMeetingForm();
 
             google.maps.event.addListener(MeetingLocationService.marker, 'click', function (){
-              MeetingLocationService.marker.infoWindow.setContent(location.data.ops[0].description);
+              MeetingLocationService.marker.infoWindow.setContent(location.data.description);
               MeetingLocationService.marker.infoWindow.open(MapService.map, this);
               event.preventDefault();
             });
             google.maps.event.addListener(MeetingLocationService.marker, 'dblclick', function (){
-
-              $scope.openMeetingForm(location.data.ops[0]);
+              MeetingLocationService.marker.infoWindow.close();
+              $scope.openMeetingForm(location.data, MeetingLocationService.marker);
               event.preventDefault();
             });
 
-            MeetingLocationService.marker.setPosition(new google.maps.LatLng(location.data.ops[0].latitude, location.data.ops[0].longitude));
+            MeetingLocationService.marker.setPosition(new google.maps.LatLng(location.data.latitude, location.data.longitude));
           }
         }, function (err) {
           console.log(err);

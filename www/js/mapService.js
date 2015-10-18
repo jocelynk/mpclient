@@ -64,17 +64,6 @@ angular.module('starter.factories')
       var marker = new google.maps.Marker({map: MapService.map, icon: angular.isDefined(icon) && icon !== null? icon : MapService.icons['default']['icon'], draggable: true});
       var infoWindow = new google.maps.InfoWindow({content: meetingLocation.description});
       marker.infoWindow = infoWindow;
-      //google.maps.event.addListener(marker, 'click', function () {
-        /*if(angular.isDefined(title) && title !== null && title.length !== 0) {
-          MapService.infoWindow.setTitle(title);
-        }
-
-        if(angular.isDefined(description) && description !== null && description.length !== 0) {
-          MapService.infoWindow.setContent(description);
-        }
-
-        MapService.infoWindow.open(MapService.map, this);
-*/
 
         google.maps.event.addListener(marker, 'click', function (){
 
@@ -84,8 +73,8 @@ angular.module('starter.factories')
         });
 
         google.maps.event.addListener(marker, 'dblclick', function (){
-
-          callback(meetingLocation);
+          marker.infoWindow.close();
+          callback(meetingLocation, marker);
           event.preventDefault();
         });
 

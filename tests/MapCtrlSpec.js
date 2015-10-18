@@ -1,7 +1,4 @@
 describe('Testing MapCtrl', function() {
-
-  beforeEach(angular.mock.module('starter.controllers'));
-
   var controller,
     MapCtrl,
     scope,
@@ -10,9 +7,13 @@ describe('Testing MapCtrl', function() {
     cordovaGeolocation;
 
   beforeEach(function() {
+    angular.module('starter.factories',[]);
+    angular.module('starter.services',[]);
     module('ngCordovaMocks');
-    module('starter.factories');
-    module('starter.services');
+    //angular.mock.module('starter.services');
+    //angular.mock.module('starter.factories');
+    angular.mock.module('starter.controllers', ['starter.factories', 'starter.services']);
+
   });
 
   beforeEach(inject(function ($rootScope, $controller, $q, $cordovaGeolocation, $compile) {
