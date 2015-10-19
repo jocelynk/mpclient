@@ -15,12 +15,19 @@ module.exports = function(config) {
       'http://maps.googleapis.com/maps/api/js?sensor=false&language=en',
       'www/lib/jquery/dist/*.js',
       'www/lib/ionic/js/ionic.bundle.js',
+      'www/lib/ngmap/build/scripts/ng-map.js',
       'www/lib/angular-mocks/angular-mocks.js',
       'www/lib/ngCordova/dist/*.js',
+      'www/js/modules.js',
+      'www/js/user.js',
+      'www/js/authService.js',
+      'www/js/locationService.js',
+      'www/js/mapService.js',
+      'www/js/app.js',
       'www/js/*.js',
       'www/templates/*.html',
       'www/*.html',
-      'tests/*.js',
+      'tests/*.js'
     ],
 
 // list of files / patterns to exclude

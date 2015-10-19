@@ -7,12 +7,8 @@ describe('Testing MapCtrl', function() {
     cordovaGeolocation;
 
   beforeEach(function() {
-    angular.module('starter.factories',[]);
-    angular.module('starter.services',[]);
     module('ngCordovaMocks');
-    //angular.mock.module('starter.services');
-    //angular.mock.module('starter.factories');
-    angular.mock.module('starter.controllers', ['starter.factories', 'starter.services']);
+    angular.mock.module('starter.factories');
 
   });
 
