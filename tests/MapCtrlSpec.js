@@ -9,6 +9,8 @@ describe('Testing MapCtrl', function() {
   beforeEach(function() {
     module('ngCordovaMocks');
     angular.mock.module('starter.factories');
+    angular.mock.module('starter.services');
+    angular.mock.module('starter.controllers');
 
   });
 
