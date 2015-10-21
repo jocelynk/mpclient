@@ -61,14 +61,16 @@ angular.module('starter.factories')
 
     LocationService.geo_success = function (position) {
       var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+      console.log("in geo_sucess");
+      console.log(position);
       if (position) {
         //temporarily making user move randomly
         if(!angular.isDefined(UserFactory.currentUser.coordinates) || UserFactory.currentUser.coordinates === null) {
           UserFactory.currentUser.coordinates = {};
         }
 
-        UserFactory.currentUser.coordinates.latitude = position.coords.latitude + (plusOrMinus * (Math.random() * .0001));
-        UserFactory.currentUser.coordinates.longitude = position.coords.longitude + (plusOrMinus * (Math.random() * .0001));
+        UserFactory.currentUser.coordinates.latitude = position.coords.latitude;// + (plusOrMinus * (Math.random() * .0001));
+        UserFactory.currentUser.coordinates.longitude = position.coords.longitude;// + (plusOrMinus * (Math.random() * .0001));
         /*if(!MapService.map) {
           MapService.map = MapService.initializeMap(UserFactory.currentUser.coordinates.latitude, UserFactory.currentUser.coordinates.longitude );
           MapService.infoWindow = MapService.initializeInfoWindow();
@@ -85,7 +87,9 @@ angular.module('starter.factories')
     };
 
     LocationService.getCordovaCurrentLocation = function() {
+      console.log('get Cordova Current Location');
       var posOptions = {timeout: 10000, enableHighAccuracy: false};
+      console.log($cordovaGeolocation);
       $cordovaGeolocation.getCurrentPosition(posOptions).then(LocationService.geo_success, LocationService.geo_error);
     };
 
