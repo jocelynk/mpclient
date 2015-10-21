@@ -129,7 +129,7 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
       });
 
       $scope.placeMarker = function (e) {
-        console.log(e);
+        console.log("in placeMarker");
         if (MapService.longPress) {
           MeetingLocationService.marker = new google.maps.Marker({
             position: e.latLng,
