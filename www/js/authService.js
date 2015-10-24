@@ -14,11 +14,11 @@ angular.module('starter.services')
     };
 
     function useCredentials(phoneNumber) {
-      return $http.get('http://192.168.1.4:5000/user/2de4' /*+ phoneNumber/*, {params:{'phoneNumber':phoneNumber}}*/).then(function(user) {
+      return $http.get('http://mp-server.herokuapp.com/user/' + phoneNumber, {params:{'phoneNumber':phoneNumber}}).then(function(user) {
         if(angular.isDefined(user.data) && user.data != null && user.data.length > 0) {
           return user.data[0];
         } else {
-          return $http.post('http://192.168.1.4:5000/user', {'phoneNumber' : phoneNumber, 'name': phoneNumber, 'status': 'active'}).then(function(user) {
+          return $http.post('http://mp-server.herokuapp.com/user', {'phoneNumber' : phoneNumber, 'name': phoneNumber, 'status': 'active'}).then(function(user) {
             if(angular.isDefined(user.data.ops[0]) && user.data.ops[0] != null) {
               return user.data.ops[0];
             }

@@ -6,7 +6,7 @@ angular.module('starter.factories')
     MeetingLocationService.marker = null;
 
     MeetingLocationService.getMeetingLocations = function() {
-      return $http.get('http://192.168.1.4:5000/meeting/' + UserFactory.phoneNumber)
+      return $http.get('http://mp-server.herokuapp.com/meeting/' + UserFactory.phoneNumber)
         .then(function(locations) {
           return locations;
         }, function(err) {
@@ -17,7 +17,7 @@ angular.module('starter.factories')
     //JSON.stringify(ids)
 
     MeetingLocationService.saveMeetingLocation = function(meetingLocation) {
-      return $http.post('http://192.168.1.4:5000/meeting', meetingLocation);
+      return $http.post('http://mp-server.herokuapp.com/meeting', meetingLocation);
     };
 
     MeetingLocationService.deleteMeetingLocations = function() {

@@ -33,7 +33,7 @@
     "com.ionic.keyboard",
     "cordova-plugin-sim",
     "cordova-plugin-geolocation",
-    "org.apache.cordova.contacts"
+    "cordova-plugin-contacts"
   ],
   "cordovaPlatforms": [
     "android"

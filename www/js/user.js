@@ -7,7 +7,7 @@ angular.module('starter.factories')
     userObject.phoneNumber = '';
     userObject.isAuthenticated = false;
     userObject.coordinates = null;
-    userObject.meetingLocations = {};
+    userObject.meetingLocations = [];
     userObject.timestamp = 0;
     userObject.randomIcon = Math.ceil(Math.random() * 5);
     userObject.marker = null;

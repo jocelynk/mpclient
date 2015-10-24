@@ -3,13 +3,15 @@ angular.module('starter.factories')
   .factory('LocationService', ['$timeout', '$q', '$cordovaGeolocation', 'UserFactory', 'MapService', function($timeout, $q, $cordovaGeolocation, UserFactory, MapService) {
     var LocationService = {};
 
-    var socket = io.connect('http://mp-server.herokuapp.com:80');
+    var socket = io.connect('http://mp-server.herokuapp.com');
     LocationService.getLocation = function() {
 
       socket.on('get_location', function (userInfo) {
         LocationService.userLocationUpdate(userInfo);
       });
     };
+
+    var deferred = $q.defer();
 
 
 
@@ -60,9 +62,27 @@ angular.module('starter.factories')
     };
 
     LocationService.geo_success = function (position) {
-      var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-      console.log("in geo_sucess");
+      console.log("geo_success");
       console.log(position);
+      var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+      if (position) {
+        //temporarily making user move randomly
+        if(!angular.isDefined(UserFactory.currentUser.coordinates) || UserFactory.currentUser.coordinates === null) {
+          UserFactory.currentUser.coordinates = {};
+        }
+
+        UserFactory.currentUser.coordinates.latitude = position.coords.latitude + (plusOrMinus * (Math.random() * .0001));
+        UserFactory.currentUser.coordinates.longitude = position.coords.longitude + (plusOrMinus * (Math.random() * .0001));
+      }
+      LocationService.userLocationUpdate(UserFactory.currentUser);
+      LocationService.sendLocation();
+      deferred.resolve(position);
+    };
+
+    LocationService.geo_success_watch = function (position) {
+      console.log("geo_success watch");
+      console.log(position);
+      var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
       if (position) {
         //temporarily making user move randomly
         if(!angular.isDefined(UserFactory.currentUser.coordinates) || UserFactory.currentUser.coordinates === null) {
@@ -71,32 +91,43 @@ angular.module('starter.factories')
 
         UserFactory.currentUser.coordinates.latitude = position.coords.latitude;// + (plusOrMinus * (Math.random() * .0001));
         UserFactory.currentUser.coordinates.longitude = position.coords.longitude;// + (plusOrMinus * (Math.random() * .0001));
-        /*if(!MapService.map) {
-          MapService.map = MapService.initializeMap(UserFactory.currentUser.coordinates.latitude, UserFactory.currentUser.coordinates.longitude );
-          MapService.infoWindow = MapService.initializeInfoWindow();
-        }*/
       }
       LocationService.userLocationUpdate(UserFactory.currentUser);
       LocationService.sendLocation();
-
+      deferred.resolve(position);
     };
 
     LocationService.geo_error = function () {
       //error_callback();
       console.log("Error: no update received");
+      deferred.reject("Error: no update received");
     };
 
     LocationService.getCordovaCurrentLocation = function() {
-      console.log('get Cordova Current Location');
-      var posOptions = {timeout: 10000, enableHighAccuracy: false};
-      console.log($cordovaGeolocation);
+      var posOptions = {timeout: 10000, enableHighAccuracy: true};
       $cordovaGeolocation.getCurrentPosition(posOptions).then(LocationService.geo_success, LocationService.geo_error);
+      return deferred.promise;
     };
 
     LocationService.getWebCurrentLocation = function() {
       navigator.geolocation.getCurrentPosition(LocationService.geo_success, LocationService.geo_error);
+
+      return deferred.promise;
     };
 
+    LocationService.getCordovaWatchPosition = function() {
+      var posOptions = {timeout: 1000, enableHighAccuracy: true}
+      console.log("cordova watch position");
+      $cordovaGeolocation.watchPosition(posOptions).then(LocationService.geo_success, LocationService.geo_error);
+      return deferred.promise;
+    };
+
+    LocationService.getWebWatchPosition = function() {
+      var posOptions = {timeout: 1000, enableHighAccuracy: true};
+      console.log("watch_position");
+      navigator.geolocation.watchPosition(LocationService.geo_success_watch, LocationService.geo_error, posOptions);
+      return deferred.promise;
+    };
 
     return LocationService;
 
