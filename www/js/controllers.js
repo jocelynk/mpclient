@@ -174,18 +174,10 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
         $scope.modal = modal;
       });
 
-      //to store the contacts that the user invites
-      $scope.contactData = {
-        selectedContacts: []
-      };
-
       $scope.pickContact = function () {
-        console.log("contacts");
         ContactsService.pickContact().then(
           function (contact) {
-            $scope.contactData.selectedContacts.push(contact);
-            console.log("Selected contacts=");
-            console.log($scope.contactData.selectedContacts);
+            $scope.contacts.selectedContacts.push(contact);
 
           },
           function (failure) {
@@ -198,9 +190,7 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
       $scope.findContactsBySearchTerm = function () {
         if (angular.isDefined($scope.searchTerm.term) && $scope.searchTerm.term != null && $scope.searchTerm.term.length > 0) {
           ContactsService.searchContacts($scope.searchTerm.term).then(function (contacts) {
-            console.log(contacts);
-            $scope.contacts = contacts;
-            $scope.meetingLocation.attendees = $scope.meetingLocation.attendees.concat(contacts);
+            $scope.contacts.selectedContacts = $scope.contacts.selectedContacts.concat(contacts);
           }, function (err) {
             console.log(err);
           })
@@ -211,7 +201,27 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
             // error
           });
         }
+      };
 
+      $scope.deleteContact = function(contact, pendingList) {
+        var index;
+        if(pendingList) {
+          index = $scope.contacts.selectedContacts.indexOf(contact);
+          if(index == 0) {
+            $scope.contacts.selectedContacts.shift();
+          } else {
+            $scope.contacts.selectedContacts = $scope.contacts.selectedContacts.splice(index);
+          }
+
+        } else {
+          index = $scope.meetingLocation.attendees.indexOf(contact);
+          if(index == 0) {
+            $scope.meetingLocation.attendees.shift();
+          } else {
+            $scope.meetingLocation.attendees = $scope.meetingLocation.attendees.splice($scope.meetingLocation.attendees.indexOf(contact));
+          }
+          $scope.contacts.deletedContacts.push(contact);
+        }
       };
 
       // Triggered in the login modal to close it
@@ -231,11 +241,13 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
         $scope.meetingLocation.phoneNumber = UserFactory.currentUser.phoneNumber.replace(/\D+/g, "").replace(/^[01]+/, "");
         $scope.meetingLocation.attendees = meetingLocation.attendees || [];
         $scope.meetingLocation._id = meetingLocation._id || null;
-        var term = {};
-        term.term = '';
+        var term = {term: ''};
         $scope.searchTerm = term;
-        $scope.contacts = [];
 
+        $scope.contacts = {
+          selectedContacts: [],
+          deletedContacts: []
+        };
         if (marker) {
           MeetingLocationService.marker = marker;
         }
@@ -247,7 +259,7 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
         $scope.meetingLocation.latitude = MeetingLocationService.marker.getPosition().lat();
         $scope.meetingLocation.longitude = MeetingLocationService.marker.getPosition().lng();
 
-        MeetingLocationService.saveMeetingLocation($scope.meetingLocation).then(function (location) {
+        MeetingLocationService.saveMeetingLocation($scope.meetingLocation, $scope.contacts.selectedContacts, $scope.contacts.deletedContacts).then(function (location) {
           if (angular.isDefined(location.data) && location.data != null) {
             $scope.closeMeetingForm();
 

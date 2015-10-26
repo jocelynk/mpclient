@@ -124,7 +124,7 @@ angular.module('starter.factories')
       var timer = $timeout(function(){
         MapService.refreshMarkers();
         $timeout.cancel(timer);
-      }, 2000);
+      }, 5000);
     };
 
     return MapService;

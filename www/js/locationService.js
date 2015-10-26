@@ -33,7 +33,7 @@ angular.module('starter.factories')
       var timer = $timeout(function(){
         LocationService.sendLocation();
         $timeout.cancel(timer);
-      }, 3000);
+      }, 5000);
 
       //clearTimeout(LocationService.sendLocationTimeout);
       //LocationService.sendLocationTimeout = setTimeout(LocationService.sendLocation, 1000 * 5);

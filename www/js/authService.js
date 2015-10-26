@@ -14,11 +14,11 @@ angular.module('starter.services')
     };
 
     function useCredentials(phoneNumber) {
-      return $http.get('http://192.168.1.5:5000/user/' + '9088927117').then(function(user) {
+      return $http.get('http://10.128.7.17:5000/user/' + '9088927117').then(function(user) {
         if(angular.isDefined(user.data) && user.data != null) {
           return user.data;
         } else {
-          return $http.post('http://192.168.1.5:5000/user', {'phoneNumber' : phoneNumber, 'name': phoneNumber, 'status': 'active'}).then(function(user) {
+          return $http.post('http://10.128.7.17:5000/user', {'phoneNumber' : phoneNumber, 'name': phoneNumber, 'status': 'active'}).then(function(user) {
             if(angular.isDefined(user.data.ops[0]) && user.data.ops[0] != null) {
               return user.data.ops[0];
             }

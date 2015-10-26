@@ -16,8 +16,8 @@ angular.module('starter.factories')
     };
     //JSON.stringify(ids)
 
-    MeetingLocationService.saveMeetingLocation = function(meetingLocation) {
-      return $http.post('http://192.168.1.5:5000/meeting', meetingLocation);
+    MeetingLocationService.saveMeetingLocation = function(meetingLocation, newContacts, deletedContacts) {
+      return $http.post('http://10.128.7.212:5000/meeting', {meetingLocation: meetingLocation, newContacts: newContacts, deletedContacts: deletedContacts});
     };
 
     MeetingLocationService.deleteMeetingLocations = function() {
