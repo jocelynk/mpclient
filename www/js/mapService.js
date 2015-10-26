@@ -85,12 +85,12 @@ angular.module('starter.factories')
 
    MapService.refreshMarkers = function () {
       if (!MapService.map) return;
-      if (!UserFactory.currentUser.movedMapCenter && UserFactory.currentUser.timestamp) {
+      /*if (!UserFactory.currentUser.movedMapCenter && UserFactory.currentUser.timestamp) {
         UserFactory.currentUser.movedMapCenter = true;
         MapService.map.setCenter(new google.maps.LatLng(
           UserFactory.currentUser.coordinates.latitude, UserFactory.currentUser.coordinates.longitude));
       }
-
+*/
       for (var id in UserFactory.users) {
         var userInfo = UserFactory.users[id];
         if (userInfo.marker) {

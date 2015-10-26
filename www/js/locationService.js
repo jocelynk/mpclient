@@ -62,8 +62,8 @@ angular.module('starter.factories')
     };
 
     LocationService.geo_success = function (position) {
-      console.log("geo_success");
-      console.log(position);
+      //console.log("geo_success");
+      //console.log(position);
       var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
       if (position) {
         //temporarily making user move randomly
@@ -80,8 +80,8 @@ angular.module('starter.factories')
     };
 
     LocationService.geo_success_watch = function (position) {
-      console.log("geo_success watch");
-      console.log(position);
+      //console.log("geo_success watch");
+      //console.log(position);
       var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
       if (position) {
         //temporarily making user move randomly
@@ -115,17 +115,9 @@ angular.module('starter.factories')
       return deferred.promise;
     };
 
-    LocationService.getCordovaWatchPosition = function() {
-      var posOptions = {timeout: 1000, enableHighAccuracy: true}
-      console.log("cordova watch position");
-      $cordovaGeolocation.watchPosition(posOptions).then(LocationService.geo_success, LocationService.geo_error);
-      return deferred.promise;
-    };
-
-    LocationService.getWebWatchPosition = function() {
+    LocationService.getWatchPosition = function() {
       var posOptions = {timeout: 1000, enableHighAccuracy: true};
-      console.log("watch_position");
-      navigator.geolocation.watchPosition(LocationService.geo_success_watch, LocationService.geo_error, posOptions);
+      navigator.geolocation.watchPosition(LocationService.geo_success, LocationService.geo_error, posOptions);
       return deferred.promise;
     };
 

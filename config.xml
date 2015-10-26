@@ -44,4 +44,5 @@
     </platform>
     <plugin name="cordova-plugin-sim" spec="~1.0.2" />
     <plugin name="cordova-plugin-contacts" spec="~1.1.0" />
+    <plugin name="cordova-plugin-x-toast" spec="https://github.com/EddyVerbruggen/Toast-PhoneGap-Plugin.git" />
 </widget>

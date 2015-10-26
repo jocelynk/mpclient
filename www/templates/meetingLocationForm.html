@@ -21,15 +21,21 @@
           <span class="input-label">Description</span>
           <input type="text" ng-model="meetingLocation.description">
         </label>
-        <label class="item">
+        <!--<label class="item">
           <span class="input-label">Private</span>
           <input type="checkbox" ng-model="meetingLocation.private">
-        </label>
-        <!--<label class="item item-input">
-          <span class="input-label">Invite</span>
-          <input type="text" ng-model="meetingLocation.attendees">
         </label>-->
-        <button class="button button-block" type="button" ng-click="pickContact()">Invite Contacts</button>
+        <label class="item item-input">
+          <span class="input-label">Invite</span>
+          <input type="text" ng-model="searchTerm.term">
+        </label>
+        <button class="button" type="button" ng-click="findContactsBySearchTerm()">Search</button>
+        <button class="button" type="button" ng-click="pickContact()">Invite Contacts</button>
+        <ion-list>
+          <ion-item ng-repeat="contact in contacts">
+            {{contact.name}}
+          </ion-item>
+        </ion-list>
         <label class="item">
           <button class="button button-block button-positive" type="submit">Save</button>
         </label>
