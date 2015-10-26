@@ -6,7 +6,7 @@ angular.module('starter.factories')
     MeetingLocationService.marker = null;
 
     MeetingLocationService.getMeetingLocations = function() {
-      return $http.get('http://192.168.1.5:5000/meeting/' + UserFactory.phoneNumber)
+      return $http.get('http://10.128.7.17:5000/meeting/' + UserFactory.phoneNumber)
         .then(function(locations) {
           return locations;
         }, function(err) {
@@ -17,7 +17,7 @@ angular.module('starter.factories')
     //JSON.stringify(ids)
 
     MeetingLocationService.saveMeetingLocation = function(meetingLocation, newContacts, deletedContacts) {
-      return $http.post('http://10.128.7.212:5000/meeting', {meetingLocation: meetingLocation, newContacts: newContacts, deletedContacts: deletedContacts});
+      return $http.post('http://10.128.7.17:5000/meeting', {meetingLocation: meetingLocation, newContacts: newContacts, deletedContacts: deletedContacts});
     };
 
     MeetingLocationService.deleteMeetingLocations = function() {

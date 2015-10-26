@@ -220,7 +220,8 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
           } else {
             $scope.meetingLocation.attendees = $scope.meetingLocation.attendees.splice($scope.meetingLocation.attendees.indexOf(contact));
           }
-          $scope.contacts.deletedContacts.push(contact);
+          if($scope.meetingLocation._id !== null && angular.isDefined($scope.meetingLocation._id))
+            $scope.contacts.deletedContacts.push(contact);
         }
       };
 
