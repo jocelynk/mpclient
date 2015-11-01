@@ -1,10 +1,10 @@
 angular.module('starter.factories')
 
-  .factory('LocationService', ['$timeout', '$q', '$cordovaGeolocation', 'UserFactory', 'MapService', function($timeout, $q, $cordovaGeolocation, UserFactory, MapService) {
+  .factory('LocationService', ['$timeout', '$q', '$cordovaGeolocation', 'Constants', 'UserFactory', 'MapService', function ($timeout, $q, $cordovaGeolocation, Constants, UserFactory, MapService) {
     var LocationService = {};
 
-    var socket = io.connect('http://mp-server.herokuapp.com');
-    LocationService.getLocation = function() {
+    var socket = io.connect(Constants.URLS.SOCKETS.server);
+    LocationService.getLocation = function () {
 
       socket.on('get_location', function (userInfo) {
         LocationService.userLocationUpdate(userInfo);
@@ -14,13 +14,12 @@ angular.module('starter.factories')
     var deferred = $q.defer();
 
 
-
     LocationService.sendLocation = function () {
       var socketObj = {coordinates: {}};
 
       //need to populate with other stuff to send to sockets later
       socketObj.id = UserFactory.currentUser.id;
-      if(angular.isDefined(UserFactory.currentUser.coordinates) && UserFactory.currentUser.coordinates !== null) {
+      if (angular.isDefined(UserFactory.currentUser.coordinates) && UserFactory.currentUser.coordinates !== null) {
         socketObj.coordinates.latitude = UserFactory.currentUser.coordinates.latitude;
         socketObj.coordinates.longitude = UserFactory.currentUser.coordinates.longitude;
         socketObj.randomIcon = UserFactory.currentUser.randomIcon;
@@ -30,7 +29,7 @@ angular.module('starter.factories')
       }
 
       //alternate way of canceling out timer?
-      var timer = $timeout(function(){
+      var timer = $timeout(function () {
         LocationService.sendLocation();
         $timeout.cancel(timer);
       }, 5000);
@@ -40,25 +39,65 @@ angular.module('starter.factories')
     };
 
     /*Service method that will send location data to sockets on server for each user
-    In the future, needs to be tagged so will know whether or not to show the user on the map
-    */
+     In the future, needs to be tagged so will know whether or not to show the user on the map
+     */
     LocationService.userLocationUpdate = function (userInfo) {
-      if (!UserFactory.users[userInfo.id]) UserFactory.users[userInfo.id] = userInfo;
+      if (!UserFactory.users[userInfo.id]) {
 
-      var originalLat = UserFactory.users[userInfo.id].coordinates.latitude;
-      var originalLong = UserFactory.users[userInfo.id].coordinates.longitude
-      if(Math.abs(originalLat - userInfo.coordinates.latitude) > 0.0001 || Math.abs(originalLong - userInfo.coordinates.longitude) > 0.0001) {
-        UserFactory.currentUser.movedMapCenter = false;
+        var addUser = false;
+        if(userInfo.id === UserFactory.currentUser.id) {
+          addUser = true;
+        } else {
+          for (var i = 0; i < UserFactory.currentUser.meetingLocations.length; i++) {
+            if (UserFactory.currentUser.meetingLocations[i]['ownerId'] === userInfo.id) {
+              addUser = true;
+              break;
+            }
+
+            if (UserFactory.currentUser.meetingLocations[i]['attendees'].indexOf(userInfo.id) > -1) {
+              addUser = true;
+              break;
+            }
+          }
+        }
+
+        if (addUser) {
+          if (!UserFactory.users[userInfo.id]) UserFactory.users[userInfo.id] = userInfo;
+
+          var originalLat = UserFactory.users[userInfo.id].coordinates.latitude;
+          var originalLong = UserFactory.users[userInfo.id].coordinates.longitude
+          if (Math.abs(originalLat - userInfo.coordinates.latitude) > 0.0001 || Math.abs(originalLong - userInfo.coordinates.longitude) > 0.0001) {
+            UserFactory.currentUser.movedMapCenter = false;
+          }
+
+          //UserFactory.users[userInfo.id].name = userInfo.name;
+          UserFactory.users[userInfo.id].coordinates.latitude = userInfo.coordinates.latitude;
+          UserFactory.users[userInfo.id].coordinates.longitude = userInfo.coordinates.longitude;
+          UserFactory.users[userInfo.id].timestamp = new Date().getTime();
+          // UserFactory.users[userInfo.id].randomIcon = userInfo.randomIcon;
+
+
+          MapService.refreshMarkers();
+        }
+
+      } else {
+        var originalLat = UserFactory.users[userInfo.id].coordinates.latitude;
+        var originalLong = UserFactory.users[userInfo.id].coordinates.longitude
+        if (Math.abs(originalLat - userInfo.coordinates.latitude) > 0.0001 || Math.abs(originalLong - userInfo.coordinates.longitude) > 0.0001) {
+          UserFactory.currentUser.movedMapCenter = false;
+        }
+
+        //UserFactory.users[userInfo.id].name = userInfo.name;
+        UserFactory.users[userInfo.id].coordinates.latitude = userInfo.coordinates.latitude;
+        UserFactory.users[userInfo.id].coordinates.longitude = userInfo.coordinates.longitude;
+        UserFactory.users[userInfo.id].timestamp = new Date().getTime();
+        // UserFactory.users[userInfo.id].randomIcon = userInfo.randomIcon;
+
+
+        MapService.refreshMarkers();
       }
 
-      //UserFactory.users[userInfo.id].name = userInfo.name;
-      UserFactory.users[userInfo.id].coordinates.latitude = userInfo.coordinates.latitude;
-      UserFactory.users[userInfo.id].coordinates.longitude = userInfo.coordinates.longitude;
-      UserFactory.users[userInfo.id].timestamp = new Date().getTime();
-     // UserFactory.users[userInfo.id].randomIcon = userInfo.randomIcon;
 
-
-      MapService.refreshMarkers();
     };
 
     LocationService.geo_success = function (position) {
@@ -67,7 +106,7 @@ angular.module('starter.factories')
       var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
       if (position) {
         //temporarily making user move randomly
-        if(!angular.isDefined(UserFactory.currentUser.coordinates) || UserFactory.currentUser.coordinates === null) {
+        if (!angular.isDefined(UserFactory.currentUser.coordinates) || UserFactory.currentUser.coordinates === null) {
           UserFactory.currentUser.coordinates = {};
         }
 
@@ -85,7 +124,7 @@ angular.module('starter.factories')
       var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
       if (position) {
         //temporarily making user move randomly
-        if(!angular.isDefined(UserFactory.currentUser.coordinates) || UserFactory.currentUser.coordinates === null) {
+        if (!angular.isDefined(UserFactory.currentUser.coordinates) || UserFactory.currentUser.coordinates === null) {
           UserFactory.currentUser.coordinates = {};
         }
 
@@ -103,19 +142,19 @@ angular.module('starter.factories')
       deferred.reject("Error: no update received");
     };
 
-    LocationService.getCordovaCurrentLocation = function() {
+    LocationService.getCordovaCurrentLocation = function () {
       var posOptions = {timeout: 10000, enableHighAccuracy: true};
       $cordovaGeolocation.getCurrentPosition(posOptions).then(LocationService.geo_success, LocationService.geo_error);
       return deferred.promise;
     };
 
-    LocationService.getWebCurrentLocation = function() {
+    LocationService.getWebCurrentLocation = function () {
       navigator.geolocation.getCurrentPosition(LocationService.geo_success, LocationService.geo_error);
 
       return deferred.promise;
     };
 
-    LocationService.getWatchPosition = function() {
+    LocationService.getWatchPosition = function () {
       var posOptions = {timeout: 1000, enableHighAccuracy: true};
       navigator.geolocation.watchPosition(LocationService.geo_success, LocationService.geo_error, posOptions);
       return deferred.promise;

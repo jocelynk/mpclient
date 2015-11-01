@@ -264,7 +264,9 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
           if (angular.isDefined(location.data) && location.data != null) {
             $scope.closeMeetingForm();
 
-            UserFactory.currentUser.meetingLocations.push(location.data);
+            if(location.data.action === 'INSERT') {
+              UserFactory.currentUser.meetingLocations.push(location.data);
+            }
 
             google.maps.event.addListener(MeetingLocationService.marker, 'click', function () {
               MeetingLocationService.marker.infoWindow.setContent(location.data.description);
