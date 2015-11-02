@@ -92,8 +92,8 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
 
     });
   }])
-  .controller('MapCtrl', ['$scope', '$cordovaToast', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService', 'ContactsService',
-    function ($scope, $cordovaToast, $cordovaGeolocation, $ionicPlatform, $ionicModal, UserFactory, MapService, LocationService, MeetingLocationService, ContactsService) {
+  .controller('MapCtrl', ['$scope', '$filter', '$cordovaToast', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService', 'ContactsService',
+    function ($scope, $filter, $cordovaToast, $cordovaGeolocation, $ionicPlatform, $ionicModal, UserFactory, MapService, LocationService, MeetingLocationService, ContactsService) {
 
       $scope.infoWindow = null;
       $scope.refreshTimeout = null;
@@ -233,15 +233,6 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
       // Open the meeting form modal
       $scope.openMeetingForm = function (meetingLocation, marker) {
         // Form data for the meeting location modal
-        $scope.meetingLocation = {};
-        $scope.meetingLocation.ownerId = UserFactory.currentUser.id;
-        $scope.meetingLocation.name = meetingLocation.name || "";
-        $scope.meetingLocation.description = meetingLocation.description || "";
-        $scope.meetingLocation.private = meetingLocation.private || false;
-        $scope.meetingLocation.date = meetingLocation.date ? Date.parse(meetingLocation.date).toString() : null;
-        $scope.meetingLocation.phoneNumber = UserFactory.currentUser.phoneNumber.replace(/\D+/g, "").replace(/^[01]+/, "");
-        $scope.meetingLocation.attendees = meetingLocation.attendees || [];
-        $scope.meetingLocation._id = meetingLocation._id || null;
         var term = {term: ''};
         $scope.searchTerm = term;
 
@@ -252,7 +243,35 @@ angular.module('starter.controllers', ['ngCordova', 'ngMap', 'starter.factories'
         if (marker) {
           MeetingLocationService.marker = marker;
         }
-        $scope.modal.show();
+
+        if(meetingLocation._id !== null && angular.isDefined(meetingLocation._id)) {
+          MeetingLocationService.getMeetingLocations(meetingLocation._id).then(function(location) {
+            $scope.meetingLocation = {};
+            $scope.meetingLocation.ownerId = location.data.ownerId;
+            $scope.meetingLocation.name = location.data.name || "";
+            $scope.meetingLocation.description = location.data.description || "";
+            $scope.meetingLocation.private = location.data.private || false;
+            $scope.meetingLocation.date = location.data.date ? new Date(Date.parse(location.data.date)) : null;
+            $scope.meetingLocation.phoneNumber = UserFactory.currentUser.phoneNumber.replace(/\D+/g, "").replace(/^[01]+/, "");
+            $scope.meetingLocation.attendees = location.data.attendees || [];
+            $scope.meetingLocation._id = location.data._id || null;
+
+            $scope.modal.show();
+          });
+        } else {
+          $scope.meetingLocation = {};
+          $scope.meetingLocation.ownerId = UserFactory.currentUser.id;
+          $scope.meetingLocation.name = "";
+          $scope.meetingLocation.description = "";
+          $scope.meetingLocation.private = false;
+          $scope.meetingLocation.date = null;
+          $scope.meetingLocation.phoneNumber = UserFactory.currentUser.phoneNumber.replace(/\D+/g, "").replace(/^[01]+/, "");
+          $scope.meetingLocation.attendees = [];
+          $scope.meetingLocation._id = null;
+
+          $scope.modal.show();
+        }
+
       };
 
       // Perform the login action when the user submits the login form

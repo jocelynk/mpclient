@@ -5,8 +5,8 @@ angular.module('starter.factories')
     var MeetingLocationService = {};
     MeetingLocationService.marker = null;
 
-    MeetingLocationService.getMeetingLocations = function() {
-      return $http.get(Constants.URLS.MEETING.GET + UserFactory.phoneNumber)
+    MeetingLocationService.getMeetingLocations = function(meetingId) {
+      return $http.get(Constants.URLS.MEETING.GET + meetingId)
         .then(function(locations) {
           return locations;
         }, function(err) {
