@@ -40,7 +40,6 @@ angular.module('starter.factories')
 
       // Initialize the map plugin
       var map = plugin.google.maps.Map.getMap(angular.element(document.querySelector('#map'))[0]);
-
       map.setClickable(false);
       return map;
     };
@@ -75,15 +74,10 @@ angular.module('starter.factories')
         },
         draggable: true,
         'markerClick': function(marker) {
-          marker.showInfoWindow();
+          callback(meetingLocation, marker);
           event.preventDefault();
         }
       }, function (marker) {
-        marker.addEventListener('dblclick', function () {
-          marker.hideInfoWindow();
-          callback(meetingLocation, marker);
-          event.preventDefault();
-        });
       });
 
       /*      var marker = new google.maps.Marker({map: MapService.map, icon: angular.isDefined(icon) && icon !== null? icon : MapService.icons['default']['icon'], draggable: true});
@@ -151,10 +145,6 @@ angular.module('starter.factories')
             }
           }, function (marker) {
             userInfo.marker = marker;
-            marker.addEventListener('dblclick', function () {
-              callback(meetingLocation, marker);
-              event.preventDefault();
-            });
           });
 
          /* var marker = new google.maps.Marker({map: MapService.map, icon: MapService.icons[userInfo.randomIcon]['icon']});

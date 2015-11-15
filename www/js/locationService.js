@@ -110,8 +110,8 @@ angular.module('starter.factories')
           UserFactory.currentUser.coordinates = {};
         }
 
-        UserFactory.currentUser.coordinates.latitude = position.coords.latitude + (plusOrMinus * (Math.random() * .0001));
-        UserFactory.currentUser.coordinates.longitude = position.coords.longitude + (plusOrMinus * (Math.random() * .0001));
+        UserFactory.currentUser.coordinates.latitude = position.coords.latitude;// + (plusOrMinus * (Math.random() * .0001));
+        UserFactory.currentUser.coordinates.longitude = position.coords.longitude;// + (plusOrMinus * (Math.random() * .0001));
       }
       LocationService.userLocationUpdate(UserFactory.currentUser);
       LocationService.sendLocation();
@@ -155,7 +155,7 @@ angular.module('starter.factories')
     };
 
     LocationService.getWatchPosition = function () {
-      var posOptions = {timeout: 1000, enableHighAccuracy: true};
+      var posOptions = {timeout: 5000, enableHighAccuracy: true};
       navigator.geolocation.watchPosition(LocationService.geo_success, LocationService.geo_error, posOptions);
       return deferred.promise;
     };

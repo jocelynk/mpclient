@@ -13,8 +13,8 @@ angular.module('starter.services')
       isAuthenticated: false
     };
 
-    function useCredentials(phoneNumber) {
-      return $http.get(Constants.URLS.USER.GET + '9147158049').then(function(user) {
+    function useCredentials(phoneNumber) { //'9147158049'
+      return $http.get(Constants.URLS.USER.GET + phoneNumber).then(function(user) {
         if(angular.isDefined(user.data) && user.data != null) {
           return user.data;
         } else {
