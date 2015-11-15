@@ -100,6 +100,7 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
       $scope.refreshLocationTimeout = null;
       $scope.geoLocation = {address: ''};
       $scope.searchTerm = {term: '', address: ''};
+      $scope.meetingsList = UserFactory.currentUser.meetingLocations;
 
       $ionicPlatform.ready(function () {
         if (!navigator.geolocation) {
@@ -188,6 +189,9 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
             'title': ''
           }, function (marker) {
             MeetingLocationService.marker = marker;
+            marker.addEventListener(plugin.google.maps.event.MARKER_CLICK, function() {
+              $scope.openMeetingForm({}, marker);
+            });
             $scope.openMeetingForm({}, marker);
           });
         });
@@ -230,14 +234,6 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
         MapService.addressLookup($scope.searchTerm.address, $scope.openMeetingForm);
         $scope.searchTerm.address = '';
       };
-
-
-      // Create the login modal that we will use later
-      $ionicModal.fromTemplateUrl('templates/meetingLocationForm.html', {
-        scope: $scope
-      }).then(function (modal) {
-        $scope.modal = modal;
-      });
 
       $scope.pickContact = function () {
         ContactsService.pickContact().then(
@@ -290,15 +286,60 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
         }
       };
 
+      // Create the meeting form modal that we will use later
+      $ionicModal.fromTemplateUrl('templates/meetingLocationForm.html', {
+        scope: $scope
+      }).then(function (modal) {
+        $scope.modal = modal;
+      });
+
+      // Create the meetings list modal that we will use later
+      $ionicModal.fromTemplateUrl('templates/meetingsList.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+      }).then(function (modal) {
+        $scope.meetingsListModal = modal;
+      });
+
+      // Triggered in the login modal to close it
+      $scope.closeMeetingsList = function () {
+        $scope.meetingsListModal.hide();
+        if($rootScope.map)
+          $rootScope.map.setClickable(true);
+      };
+
+      // Open the meeting form modal
+      $scope.openMeetingsList = function (meetingLocation, marker) {
+        if($rootScope.map)
+          $rootScope.map.setClickable(false);
+
+
+        $scope.meetingsListModal.show();
+
+      };
+
+      $scope.goToMeeting = function (meetingLocation, marker) {
+        MapService.map.animateCamera({
+          'target': new plugin.google.maps.LatLng(meetingLocation.latitude, meetingLocation.longitude),
+          'zoom': 17
+        }, function() {
+          $scope.openMeetingForm(meetingLocation, marker);
+        });
+        $scope.meetingsListModal.hide();
+
+      };
+
       // Triggered in the login modal to close it
       $scope.closeMeetingForm = function () {
         $scope.modal.hide();
-        $rootScope.map.setClickable(true);
+        if($rootScope.map)
+          $rootScope.map.setClickable(true);
       };
 
       // Open the meeting form modal
       $scope.openMeetingForm = function (meetingLocation, marker) {
-        $rootScope.map.setClickable(false);
+        if($rootScope.map)
+          $rootScope.map.setClickable(false);
         // Form data for the meeting location modal
         $scope.searchTerm.term = '';
 
@@ -349,13 +390,42 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
 
           MeetingLocationService.saveMeetingLocation($scope.meetingLocation, $scope.contacts.selectedContacts, $scope.contacts.deletedContacts).then(function (location) {
             if (angular.isDefined(location.data) && location.data != null) {
-              $scope.closeMeetingForm();
+              MeetingLocationService.marker.setTitle(location.data.name);
+              MeetingLocationService.marker.setPosition(new plugin.google.maps.LatLng(location.data.latitude, location.data.longitude));
+              MeetingLocationService.marker.addEventListener(plugin.google.maps.event.MARKER_CLICK, function () {
+                $scope.openMeetingForm(location.data, MeetingLocationService.marker);
+                event.preventDefault();
+              });
 
-              if (location.data.action === 'INSERT') {
-                UserFactory.currentUser.meetingLocations.push(location.data);
+              $scope.closeMeetingForm();
+              location.data.marker = MeetingLocationService.marker;
+              switch (location.data.action) {
+                case 'INSERT':
+                  UserFactory.currentUser.meetingLocations.push(location.data);
+                  break;
+                case 'UPDATE':
+                  for(var mInd = 0; mInd < UserFactory.currentUser.meetingLocations.length; mInd++) {
+                    if(UserFactory.currentUser.meetingLocations[mInd]["_id"] == location.data["_id"]) {
+                      UserFactory.currentUser.meetingLocations[mInd] = location.data;
+                      break;
+                    }
+                  }
+                  break;
+                case 'DELETE':
+                  for(var mInd = 0; mInd < UserFactory.currentUser.meetingLocations.length; mInd++) {
+                    if(UserFactory.currentUser.meetingLocations[mInd]["_id"] == location.data["_id"]) {
+                      UserFactory.currentUser.meetingLocations.splice(mInd, 1);
+                      break;
+                    }
+                  }
+                  break;
+                default:
+                  break;
               }
 
-              MeetingLocationService.marker.setTitle(location.data.name);
+              $scope.meetingsList = UserFactory.currentUser.meetingLocations;
+
+
               /*  google.maps.event.addListener(MeetingLocationService.marker, 'click', function () {
                MeetingLocationService.marker.infoWindow.setContent(location.data.description);
                MeetingLocationService.marker.infoWindow.open(MapService.map, this);
@@ -366,13 +436,6 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
                $scope.openMeetingForm(location.data, MeetingLocationService.marker);
                event.preventDefault();
                });*/
-
-              MeetingLocationService.marker.addEventListener(plugin.google.maps.event.MARKER_CLICK, function () {
-                $scope.openMeetingForm(location.data, MeetingLocationService.marker);
-                event.preventDefault();
-              });
-
-              MeetingLocationService.marker.setPosition(new plugin.google.maps.LatLng(location.data.latitude, location.data.longitude));
             }
           }, function (err) {
             console.log(err);

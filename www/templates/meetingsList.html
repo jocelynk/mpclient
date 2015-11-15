@@ -1,0 +1,10 @@
+<ion-modal-view class="product">
+  <div class="list card" ng-repeat="meeting in meetingsList">
+    <a href="" class="item item-thumbnail-left" ng-click="goToMeeting(meeting, meeting.marker)">
+      <img src="./img/pokeball.png">
+      <h2>{{meeting.name}}</h2>
+      <p>{{meeting.date | date:'MM/dd/yyyy @ h:mm a'}}</p>
+      <p>{{meeting.description}}</p>
+    </a>
+  </div>
+</ion-modal-view>

@@ -601,7 +601,6 @@ ngCordovaMocks.factory('$cordovaDevice', function () {
      The version of the operating system.
      This property should only be used in automated tests.
      */
-    version: version,
 
     /**
      @ngdoc property
@@ -1483,7 +1482,7 @@ ngCordovaMocks.factory('$cordovaFileTransfer', ['$q', function ($q) {
         },
 
         upload: function (server, filePath, options) {
-            return mockIt.call(this, 'There was an error uploading the file.'); 
+            return mockIt.call(this, 'There was an error uploading the file.');
         }
     };
 }]);

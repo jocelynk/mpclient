@@ -78,6 +78,7 @@ angular.module('starter.factories')
           event.preventDefault();
         }
       }, function (marker) {
+        meetingLocation.marker = marker;
       });
     };
 
@@ -95,6 +96,9 @@ angular.module('starter.factories')
             'title':  JSON.stringify(result.position),
             'draggable': true
           }, function(marker) {
+            marker.addEventListener(plugin.google.maps.event.MARKER_CLICK, function() {
+              callback({}, marker);
+            });
 
             MapService.map.animateCamera({
               'target': position,
