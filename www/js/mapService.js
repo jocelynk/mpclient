@@ -1,6 +1,6 @@
 angular.module('starter.factories')
 
-  .factory('MapService', ['$timeout', '$cordovaGeolocation', 'UserFactory', function($timeout, $cordovaGeolocation, UserFactory) {
+  .factory('MapService', ['$timeout', '$cordovaGeolocation', 'UserFactory', function ($timeout, $cordovaGeolocation, UserFactory) {
 
     var MapService = {};
 
@@ -32,11 +32,11 @@ angular.module('starter.factories')
     };
 
     MapService.initializeMap = function (longitude, latitude) {
-     /* var map = new google.maps.Map(angular.element(document.querySelector('#map'))[0], {
-        zoom: 15,
-        center: new google.maps.LatLng(longitude, latitude),
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-      });*/
+      /* var map = new google.maps.Map(angular.element(document.querySelector('#map'))[0], {
+       zoom: 15,
+       center: new google.maps.LatLng(longitude, latitude),
+       mapTypeId: google.maps.MapTypeId.ROADMAP
+       });*/
 
       // Initialize the map plugin
       var map = plugin.google.maps.Map.getMap(angular.element(document.querySelector('#map'))[0]);
@@ -44,71 +44,76 @@ angular.module('starter.factories')
       return map;
     };
 
-    MapService.initializeInfoWindow = function(description) {
+    /*MapService.initializeInfoWindow = function (description) {
       var window = new google.maps.InfoWindow({content: description});
 
       return window;
     };
 
-    MapService.initializeMapEvents = function() {
-      MapService.map.addListener('mousedown', function(event){
+    MapService.initializeMapEvents = function () {
+      MapService.map.addListener('mousedown', function (event) {
         MapService.startMouseDown = new Date().getTime();
       });
 
-      MapService.map.addListener('mouseup', function(event){
+      MapService.map.addListener('mouseup', function (event) {
 
         var end = new Date().getTime();
         MapService.longPress = (end - MapService.startMouseDown < 300) ? false : true;
 
       });
-    };
+    };*/
 
-    MapService.createMarker = function(meetingLocation, icon, callback) {
+    MapService.createMarker = function (meetingLocation, icon, callback) {
       var myLatLng = new plugin.google.maps.LatLng(meetingLocation.latitude, meetingLocation.longitude);
 
       MapService.map.addMarker({
         'position': myLatLng,
         'title': meetingLocation.name,
         'icon': {
-          'url': angular.isDefined(icon) && icon !== null? icon : MapService.icons['default']['icon']
+          'url': angular.isDefined(icon) && icon !== null ? icon : MapService.icons['default']['icon']
         },
-        draggable: true,
-        'markerClick': function(marker) {
+        'draggable': true,
+        'markerClick': function (marker) {
           callback(meetingLocation, marker);
           event.preventDefault();
         }
       }, function (marker) {
       });
+    };
 
-      /*      var marker = new google.maps.Marker({map: MapService.map, icon: angular.isDefined(icon) && icon !== null? icon : MapService.icons['default']['icon'], draggable: true});
-            var infoWindow = new google.maps.InfoWindow({content: meetingLocation.description});
-            marker.infoWindow = infoWindow;
+    MapService.addressLookup = function(address, callback) {
+      var request = {
+        'address': address
+      };
+      plugin.google.maps.Geocoder.geocode(request, function(results) {
+        if (results.length) {
+          var result = results[0];
+          var position = result.position;
 
-              google.maps.event.addListener(marker, 'click', function (){
+          MapService.map.addMarker({
+            'position': position,
+            'title':  JSON.stringify(result.position),
+            'draggable': true
+          }, function(marker) {
 
-                marker.infoWindow.setContent(meetingLocation.description);
-                marker.infoWindow.open(MapService.map, this);
-                event.preventDefault();
-              });
+            MapService.map.animateCamera({
+              'target': position,
+              'zoom': 17
+            }, function() {
+              callback({}, marker);
+            });
 
-              google.maps.event.addListener(marker, 'dblclick', function (){
-                marker.infoWindow.close();
-                callback(meetingLocation, marker);
-                event.preventDefault();
-              });
+          });
+        } else {
+          alert("Location not found");
+        }
+      });
 
-              marker.setPosition(new google.maps.LatLng(meetingLocation.latitude, meetingLocation.longitude));*/
     };
 
 
-   MapService.refreshMarkers = function () {
+    MapService.refreshMarkers = function () {
       if (!MapService.map) return;
-      /*if (!UserFactory.currentUser.movedMapCenter && UserFactory.currentUser.timestamp) {
-        UserFactory.currentUser.movedMapCenter = true;
-        MapService.map.setCenter(new google.maps.LatLng(
-          UserFactory.currentUser.coordinates.latitude, UserFactory.currentUser.coordinates.longitude));
-      }
-*/
       for (var id in UserFactory.users) {
         var userInfo = UserFactory.users[id];
         if (userInfo.marker) {
@@ -123,7 +128,7 @@ angular.module('starter.factories')
           } else {
             userInfo.marker.setTitle(userInfo.name);
             userInfo.marker.setPosition(
-               new plugin.google.maps.LatLng(userInfo.coordinates.latitude, userInfo.coordinates.longitude));
+              new plugin.google.maps.LatLng(userInfo.coordinates.latitude, userInfo.coordinates.longitude));
           }
 
 
@@ -139,32 +144,17 @@ angular.module('starter.factories')
               'url': MapService.icons[userInfo.randomIcon]['icon']
             },
             draggable: true,
-            'markerClick': function(marker) {
+            'markerClick': function (marker) {
               marker.showInfoWindow();
               event.preventDefault();
             }
           }, function (marker) {
             userInfo.marker = marker;
           });
-
-         /* var marker = new google.maps.Marker({map: MapService.map, icon: MapService.icons[userInfo.randomIcon]['icon']});
-          google.maps.event.addListener(marker, 'click', function () {
-            MapService.infoWindow.setContent(marker.getTitle());
-            MapService.infoWindow.open(MapService.map, this);
-          });
-          userInfo.marker = marker;*/
         }
-        //Move the markers
-      /*  userInfo.marker.setTitle(userInfo.name);
-        userInfo.marker.setPosition(
-          new google.maps.LatLng(userInfo.coordinates.latitude, userInfo.coordinates.longitude));*/
       }
 
-      // Refresh the markers every 2 seconds
-      //clearTimeout($scope.refreshTimeout);
-      //$scope.refreshTimeout = setTimeout($scope.refreshMarkers, 1000 * 2);
-
-      var timer = $timeout(function(){
+      var timer = $timeout(function () {
         MapService.refreshMarkers();
         $timeout.cancel(timer);
       }, 5000);
