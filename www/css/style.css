@@ -15,6 +15,17 @@
   font-size: 11px;
 }
 
+.width-80-per {
+  width: 80%;
+}
 .padding-top-md {
   padding-top: 50px
+}
+
+.top-sm {
+  top:10px;
+}
+
+.margin-left-sm {
+  margin-left:10px;
 }
