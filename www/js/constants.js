@@ -4,15 +4,15 @@ angular.module('starter.helpers')
     return {
       URLS: {
         USER: {
-          GET: 'http://192.168.1.4:5000/user/',
-          POST: 'http://192.168.1.4:5000/user/'
+          GET: 'http://192.168.1.5:5000/user/',
+          POST: 'http://192.168.1.5:5000/user/'
         },
         MEETING: {
-          GET: 'http://192.168.1.4:5000/meeting/',
-          POST: 'http://192.168.1.4:5000/meeting/'
+          GET: 'http://192.168.1.5:5000/meeting/',
+          POST: 'http://192.168.1.5:5000/meeting/'
         },
         SOCKETS: {
-          server: 'http://192.168.1.4:5000'
+          server: 'http://192.168.1.5:5000'
         }
       }
     };

@@ -6,7 +6,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.factories'])
 
-  .run(function ($ionicPlatform, $rootScope, $state, UserFactory) {
+  .run(function ($ionicPlatform, $rootScope, $state, $ionicSideMenuDelegate, UserFactory) {
     $ionicPlatform.ready(function () {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -28,11 +28,14 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.factories'])
           $state.go('app.login');
         }
       }
+
+      $rootScope.isMenuOpen = $ionicSideMenuDelegate.isOpen.bind($ionicSideMenuDelegate);
     });
   })
 
   .config(function ($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
     $ionicConfigProvider.tabs.position('bottom');
+    $ionicConfigProvider.views.transition('none');
     $stateProvider
 
       .state('app', {
