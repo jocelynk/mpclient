@@ -14,7 +14,8 @@ angular.module('starter.services')
     };
 
     function useCredentials(phoneNumber) { //'9147158049'
-      return $http.get(Constants.URLS.USER.GET + '9088927117').then(function(user) {
+      var number = phoneNumber.replace(/\D/g,'');
+      return $http.get(Constants.URLS.USER.GET + number).then(function(user) {
         if(angular.isDefined(user.data) && user.data != null) {
           return user.data;
         } else {

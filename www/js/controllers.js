@@ -318,6 +318,7 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
 
       };
 
+
       $scope.goToMeeting = function (meetingLocation, marker) {
         MapService.map.animateCamera({
           'target': new plugin.google.maps.LatLng(meetingLocation.latitude, meetingLocation.longitude),

@@ -1,4 +1,7 @@
 <ion-modal-view class="product">
+  <div class="buttons">
+    <button class="button button-clear" ng-click="closeMeetingsList()">Close</button>
+  </div>
   <div class="list card" ng-repeat="meeting in meetingsList">
     <a href="" class="item item-thumbnail-left" ng-click="goToMeeting(meeting, meeting.marker)">
       <img src="./img/pokeball.png">
