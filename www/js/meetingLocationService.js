@@ -16,8 +16,11 @@ angular.module('starter.factories')
     };
     //JSON.stringify(ids)
 
-    MeetingLocationService.saveMeetingLocation = function(meetingLocation, newContacts, deletedContacts) {
-      return $http.post(Constants.URLS.MEETING.POST, {meetingLocation: meetingLocation, newContacts: newContacts, deletedContacts: deletedContacts});
+    MeetingLocationService.saveMeetingLocation = function(meetingLocation, newContacts, deletedContacts, action) {
+      if(action == Constants.ACTIONS.CREATE)
+        return $http.post(Constants.URLS.MEETING.POST, {meetingLocation: meetingLocation, newContacts: newContacts, deletedContacts: deletedContacts});
+      else if(action == Constants.ACTIONS.UPDATE)
+        return $http.put(Constants.URLS.MEETING.PUT, {meetingLocation: meetingLocation, newContacts: newContacts, deletedContacts: deletedContacts});
     };
 
     MeetingLocationService.deleteMeetingLocations = function() {

@@ -92,8 +92,8 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
 
     });
   }])
-  .controller('MapCtrl', ['$rootScope', '$scope', '$filter', '$cordovaToast', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService', 'ContactsService',
-    function ($rootScope, $scope, $filter, $cordovaToast, $cordovaGeolocation, $ionicPlatform, $ionicModal, UserFactory, MapService, LocationService, MeetingLocationService, ContactsService) {
+  .controller('MapCtrl', ['$rootScope', '$scope', '$filter', '$cordovaToast', '$cordovaGeolocation', '$ionicPlatform', '$ionicModal', 'Constants', 'UserFactory', 'MapService', 'LocationService', 'MeetingLocationService', 'ContactsService',
+    function ($rootScope, $scope, $filter, $cordovaToast, $cordovaGeolocation, $ionicPlatform, $ionicModal, Constants, UserFactory, MapService, LocationService, MeetingLocationService, ContactsService) {
 
       $scope.infoWindow = null;
       $scope.refreshTimeout = null;
@@ -209,25 +209,6 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
             $scope.openMeetingForm({}, marker)
           });
         });
-
-
-        /* if (MapService.longPress) {
-         MeetingLocationService.marker = new google.maps.Marker({
-         position: e.latLng,
-         map: MapService.map,
-         draggable: true
-         });
-         var infowindow = new google.maps.InfoWindow();
-         MeetingLocationService.marker.infoWindow = infowindow;
-         MapService.map.panTo(e.latLng);
-
-         google.maps.event.addEventListener(MeetingLocationService.marker, 'dblclick', function () {
-         $scope.openMeetingForm($scope.meetingLocation, MeetingLocationService.marker);
-         event.preventDefault();
-         });
-
-         $scope.openMeetingForm({});
-         }*/
       };
 
       $scope.addressLookup = function () {
@@ -389,7 +370,8 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
           $scope.meetingLocation.latitude = latLng.lat;
           $scope.meetingLocation.longitude = latLng.lng;
 
-          MeetingLocationService.saveMeetingLocation($scope.meetingLocation, $scope.contacts.selectedContacts, $scope.contacts.deletedContacts).then(function (location) {
+          var action = $scope.meetingLocation._id == null || !angular.isDefined($scope.meetingLocation._id)? Constants.ACTIONS.CREATE : Constants.ACTIONS.UPDATE;
+          MeetingLocationService.saveMeetingLocation($scope.meetingLocation, $scope.contacts.selectedContacts, $scope.contacts.deletedContacts, action).then(function (location) {
             if (angular.isDefined(location.data) && location.data != null) {
               MeetingLocationService.marker.setTitle(location.data.name);
               MeetingLocationService.marker.setPosition(new plugin.google.maps.LatLng(location.data.latitude, location.data.longitude));
@@ -401,10 +383,10 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
               $scope.closeMeetingForm();
               location.data.marker = MeetingLocationService.marker;
               switch (location.data.action) {
-                case 'INSERT':
+                case Constants.ACTIONS.CREATE:
                   UserFactory.currentUser.meetingLocations.push(location.data);
                   break;
-                case 'UPDATE':
+                case Constants.ACTIONS.UPDATE:
                   for(var mInd = 0; mInd < UserFactory.currentUser.meetingLocations.length; mInd++) {
                     if(UserFactory.currentUser.meetingLocations[mInd]["_id"] == location.data["_id"]) {
                       UserFactory.currentUser.meetingLocations[mInd] = location.data;
@@ -412,7 +394,7 @@ angular.module('starter.controllers', ['ngCordova', /*'ngMap',*/ 'starter.factor
                     }
                   }
                   break;
-                case 'DELETE':
+                case Constants.ACTIONS.DELETE:
                   for(var mInd = 0; mInd < UserFactory.currentUser.meetingLocations.length; mInd++) {
                     if(UserFactory.currentUser.meetingLocations[mInd]["_id"] == location.data["_id"]) {
                       UserFactory.currentUser.meetingLocations.splice(mInd, 1);
